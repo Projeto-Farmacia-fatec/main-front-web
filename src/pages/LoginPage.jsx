@@ -271,9 +271,6 @@ const LoginPage = () => {
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
                         {access.label}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {access.cpf}
-                      </Typography>
                     </CardContent>
                   </Card>
                 </Grid>
