@@ -9,20 +9,20 @@ import {
   Grid,
   Alert,
   CircularProgress,
-  Card,
-  CardContent,
   IconButton,
   InputAdornment,
   Divider,
+  Card,
+  CardContent,
+  Avatar,
 } from "@mui/material";
 import {
-  LocalHospital,
+  Person as PersonIcon,
+  Lock as LockIcon,
   Visibility,
   VisibilityOff,
-  AdminPanelSettings,
-  MedicalServices,
-  LocalPharmacy,
-  People,
+  Medication as MedicationIcon,
+  PersonOutlineOutlined as PersonOutlineIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -30,32 +30,24 @@ const QUICK_ACCESS = [
   {
     role: "PACIENTE",
     label: "Paciente",
-    icon: <People />,
-    color: "#1565C0",
     cpf: "123.456.789-00",
     password: "123456",
   },
   {
     role: "SECRETARIA",
-    label: "Secretaria",
-    icon: <AdminPanelSettings />,
-    color: "#2E7D32",
+    label: "Secretaria de Saúde",
     cpf: "234.567.890-11",
     password: "123456",
   },
   {
     role: "FARMACIA",
     label: "Farmácia",
-    icon: <LocalPharmacy />,
-    color: "#E65100",
     cpf: "345.678.901-22",
     password: "123456",
   },
   {
     role: "UBS",
     label: "UBS",
-    icon: <MedicalServices />,
-    color: "#6A1B9A",
     cpf: "456.789.012-33",
     password: "123456",
   },
@@ -64,9 +56,9 @@ const QUICK_ACCESS = [
 const LoginPage = () => {
   const [cpf, setCpf] = useState("");
   const [password, setPassword] = useState("");
-  const [selectedRole, setSelectedRole] = useState("PACIENTE");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [selectedRole, setSelectedRole] = useState(null);
 
   const { login, loading } = useAuth();
   const navigate = useNavigate();
@@ -80,10 +72,14 @@ const LoginPage = () => {
       return;
     }
 
+    if (!selectedRole) {
+      setError("Por favor, selecione um perfil de acesso");
+      return;
+    }
+
     try {
       const user = await login(cpf, password, selectedRole);
 
-      // Redirecionar baseado no perfil
       const routes = {
         PACIENTE: "/paciente/dashboard",
         SECRETARIA: "/secretaria/dashboard",
@@ -97,26 +93,11 @@ const LoginPage = () => {
     }
   };
 
-  const handleQuickAccess = async (access) => {
+  const handleQuickAccess = (access) => {
     setCpf(access.cpf);
     setPassword(access.password);
     setSelectedRole(access.role);
     setError("");
-
-    try {
-      const user = await login(access.cpf, access.password, access.role);
-
-      const routes = {
-        PACIENTE: "/paciente/dashboard",
-        SECRETARIA: "/secretaria/dashboard",
-        FARMACIA: "/farmacia/dashboard",
-        UBS: "/ubs/dashboard",
-      };
-
-      navigate(routes[user.role], { replace: true });
-    } catch (err) {
-      setError(err.message);
-    }
   };
 
   const formatCpf = (value) => {
@@ -129,62 +110,129 @@ const LoginPage = () => {
   };
 
   return (
-    <Grid container component="main" sx={{ height: "100vh" }}>
-      {/* Lado Esquerdo - Banner */}
-      <Grid
-        item
-        xs={false}
-        sm={4}
-        md={7}
+    <Box
+      sx={{
+        display: "flex",
+        width: "100vw",
+        height: "100vh",
+        margin: 0,
+        padding: 0,
+        overflow: "hidden",
+      }}
+    >
+      {/* Lado Esquerdo - 50% */}
+      <Box
         sx={{
-          background: "linear-gradient(135deg, #1565C0 0%, #0D47A1 100%)",
+          width: "50%",
+          height: "100%",
+          backgroundColor: "#1A56DB",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
-          color: "white",
-          p: 4,
+          justifyContent: "center",
+          position: "relative",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background:
+              "radial-gradient(circle at 50% 40%, rgba(255,255,255,0.1) 0%, transparent 70%)",
+          },
         }}
       >
-        <LocalHospital sx={{ fontSize: 80, mb: 2 }} />
-        <Typography
-          variant="h3"
-          component="h1"
-          gutterBottom
-          sx={{ fontWeight: "bold" }}
-        >
-          Farmácia Judicial
-        </Typography>
-        <Typography variant="h6" sx={{ opacity: 0.9, textAlign: "center" }}>
-          Sistema Integrado de Gestão de Medicamentos
-        </Typography>
-        <Box sx={{ mt: 4, textAlign: "center" }}>
-          <Typography variant="body1" sx={{ opacity: 0.8 }}>
-            Agilidade e transparência no acesso a medicamentos
-          </Typography>
-        </Box>
-      </Grid>
-
-      {/* Lado Direito - Formulário */}
-      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        {/* Círculo com ícone */}
         <Box
           sx={{
-            my: 8,
-            mx: 4,
+            width: 120,
+            height: 120,
+            borderRadius: "50%",
+            backgroundColor: "white",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
+            justifyContent: "center",
+            mb: 4,
+            zIndex: 1,
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
           }}
         >
-          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-            Acessar o Sistema
-          </Typography>
+          <MedicationIcon sx={{ fontSize: 64, color: "#1A56DB" }} />
+        </Box>
 
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{ mt: 1, width: "100%", maxWidth: 400 }}
+        {/* Textos */}
+        <Box sx={{ textAlign: "center", zIndex: 1, px: 4 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: "white",
+              mb: 1,
+              fontSize: { xs: "1.5rem", md: "2rem" },
+            }}
           >
+            Sistema de Farmácia Judicial
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              color: "rgba(255, 255, 255, 0.8)",
+              fontWeight: 400,
+              mb: 2,
+            }}
+          >
+            Franco da Rocha
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: "rgba(255, 255, 255, 0.7)",
+              fontWeight: 300,
+            }}
+          >
+            Gerenciamento e agendamento de medicamentos
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Lado Direito - 50% */}
+      <Box
+        sx={{
+          width: "50%",
+          height: "100%",
+          backgroundColor: "white",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          px: { xs: 2, sm: 4, md: 8 },
+        }}
+      >
+        <Box sx={{ width: "100%", maxWidth: 440 }}>
+          {/* Cabeçalho */}
+          <Box sx={{ mb: 4, textAlign: "center" }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                color: "#111827",
+                mb: 1,
+              }}
+            >
+              Bem-vindo
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#6B7280",
+              }}
+            >
+              Entre com suas credenciais
+            </Typography>
+          </Box>
+
+          {/* Formulário */}
+          <Box component="form" onSubmit={handleSubmit}>
             {error && (
               <Alert severity="error" sx={{ mb: 2 }}>
                 {error}
@@ -192,23 +240,28 @@ const LoginPage = () => {
             )}
 
             <TextField
-              margin="normal"
-              required
               fullWidth
+              required
               id="cpf"
               label="CPF"
               name="cpf"
               autoComplete="cpf"
-              autoFocus
               value={cpf}
               onChange={(e) => setCpf(formatCpf(e.target.value))}
-              placeholder="123.456.789-00"
+              placeholder="000.000.000-00"
+              sx={{ mb: 2.5 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon sx={{ color: "#9CA3AF" }} />
+                  </InputAdornment>
+                ),
+              }}
             />
 
             <TextField
-              margin="normal"
-              required
               fullWidth
+              required
               name="password"
               label="Senha"
               type={showPassword ? "text" : "password"}
@@ -216,12 +269,19 @@ const LoginPage = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              sx={{ mb: 3 }}
               InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon sx={{ color: "#9CA3AF" }} />
+                  </InputAdornment>
+                ),
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
+                      size="small"
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -234,52 +294,138 @@ const LoginPage = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
               disabled={loading}
+              sx={{
+                py: 1.5,
+                backgroundColor: "#1A56DB",
+                "&:hover": {
+                  backgroundColor: "#1E40AF",
+                },
+                textTransform: "none",
+                fontSize: "1rem",
+                fontWeight: 600,
+                mb: 3,
+              }}
             >
-              {loading ? <CircularProgress size={24} /> : "Entrar"}
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Entrar"
+              )}
             </Button>
 
-            <Divider sx={{ my: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                Acesso Rápido para Testes
-              </Typography>
-            </Divider>
-
-            <Grid container spacing={2}>
-              {QUICK_ACCESS.map((access) => (
-                <Grid item xs={6} key={access.role}>
-                  <Card
-                    sx={{
-                      cursor: "pointer",
-                      transition: "all 0.3s",
-                      border:
-                        selectedRole === access.role
-                          ? `2px solid ${access.color}`
-                          : "2px solid transparent",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                        boxShadow: 3,
-                      },
-                    }}
-                    onClick={() => handleQuickAccess(access)}
-                  >
-                    <CardContent sx={{ textAlign: "center", p: 2 }}>
-                      <Box sx={{ color: access.color, mb: 1 }}>
-                        {access.icon}
-                      </Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {access.label}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#9CA3AF",
+                textAlign: "center",
+                mb: 4,
+                fontSize: "0.875rem",
+              }}
+            >
+              Pacientes são cadastrados pela Secretaria de Saúde
+            </Typography>
           </Box>
+
+          <Divider sx={{ mb: 3 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#6B7280",
+                fontWeight: 600,
+                px: 2,
+              }}
+            >
+              Opções de Login:
+            </Typography>
+          </Divider>
+
+          {/* Cards de Acesso Rápido */}
+          <Box sx={{ mb: 2 }}>
+            {QUICK_ACCESS.map((access) => (
+              <Card
+                key={access.role}
+                onClick={() => handleQuickAccess(access)}
+                sx={{
+                  mb: 1.5,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  border:
+                    selectedRole === access.role
+                      ? "2px solid #1A56DB"
+                      : "1px solid #E5E7EB",
+                  backgroundColor:
+                    selectedRole === access.role ? "#F0F5FF" : "white",
+                  "&:hover": {
+                    backgroundColor:
+                      selectedRole === access.role ? "#F0F5FF" : "#F9FAFB",
+                    borderColor: "#1A56DB",
+                    boxShadow: "0 2px 8px rgba(26, 86, 219, 0.1)",
+                  },
+                }}
+                elevation={0}
+              >
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    py: 1.5,
+                    px: 2,
+                    "&:last-child": { pb: 1.5 },
+                  }}
+                >
+                  <Box>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        color: "#111827",
+                        mb: 0.5,
+                      }}
+                    >
+                      {access.label}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#6B7280",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      CPF: {access.cpf}
+                    </Typography>
+                  </Box>
+                  <Avatar
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      backgroundColor:
+                        selectedRole === access.role ? "#1A56DB" : "#F3F4F6",
+                      color: selectedRole === access.role ? "white" : "#9CA3AF",
+                    }}
+                  >
+                    <PersonOutlineIcon />
+                  </Avatar>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+
+          <Typography
+            variant="caption"
+            sx={{
+              color: "#9CA3AF",
+              textAlign: "center",
+              display: "block",
+              fontSize: "0.75rem",
+            }}
+          >
+            Clique em uma opção para preencher automaticamente
+          </Typography>
         </Box>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
 
