@@ -2,11 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
-  Paper,
   TextField,
   Button,
   Typography,
-  Grid,
   Alert,
   CircularProgress,
   IconButton,
@@ -15,6 +13,8 @@ import {
   Card,
   CardContent,
   Avatar,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Person as PersonIcon,
@@ -62,6 +62,8 @@ const LoginPage = () => {
 
   const { login, loading } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -120,13 +122,13 @@ const LoginPage = () => {
         overflow: "hidden",
       }}
     >
-      {/* Lado Esquerdo - 50% */}
+      {/* Lado Esquerdo - Banner Azul (Visível apenas em telas md+ */}
       <Box
         sx={{
           width: "50%",
           height: "100%",
           backgroundColor: "#1A56DB",
-          display: "flex",
+          display: { xs: "none", md: "flex" },
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
@@ -196,21 +198,83 @@ const LoginPage = () => {
         </Box>
       </Box>
 
-      {/* Lado Direito - 50% */}
+      {/* Lado Direito - Formulário */}
       <Box
         sx={{
-          width: "50%",
+          width: { xs: "100%", md: "50%" },
           height: "100%",
           backgroundColor: "white",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          px: { xs: 2, sm: 4, md: 8 },
+          overflowY: "auto",
+          overflowX: "hidden",
         }}
       >
-        <Box sx={{ width: "100%", maxWidth: 440 }}>
-          {/* Cabeçalho */}
-          <Box sx={{ mb: 4, textAlign: "center" }}>
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 440,
+            px: { xs: 3, sm: 4, md: 8 },
+            py: { xs: 3, sm: 4, md: 0 },
+            my: { xs: "auto", md: 0 },
+          }}
+        >
+          {/* Cabeçalho Compacto Mobile (Visível apenas em telas xs e sm) */}
+          <Box
+            sx={{
+              display: { xs: "flex", md: "none" },
+              flexDirection: "column",
+              alignItems: "center",
+              mb: 4,
+              mt: 2,
+            }}
+          >
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                backgroundColor: "#1A56DB",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 2,
+                boxShadow: "0 4px 12px rgba(26, 86, 219, 0.3)",
+              }}
+            >
+              <MedicationIcon sx={{ fontSize: 36, color: "white" }} />
+            </Box>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+                color: "#1A56DB",
+                textAlign: "center",
+                mb: 0.5,
+              }}
+            >
+              Sistema de Farmácia Judicial
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#6B7280",
+                fontWeight: 500,
+              }}
+            >
+              Franco da Rocha
+            </Typography>
+          </Box>
+
+          {/* Cabeçalho Desktop (Visível apenas em telas md+) */}
+          <Box
+            sx={{
+              display: { xs: "none", md: "block" },
+              mb: 4,
+              textAlign: "center",
+            }}
+          >
             <Typography
               variant="h4"
               sx={{
@@ -230,6 +294,19 @@ const LoginPage = () => {
               Entre com suas credenciais
             </Typography>
           </Box>
+
+          {/* Cabeçalho do Formulário Mobile */}
+          <Typography
+            variant="body2"
+            sx={{
+              display: { xs: "block", md: "none" },
+              color: "#6B7280",
+              textAlign: "center",
+              mb: 3,
+            }}
+          >
+            Entre com suas credenciais
+          </Typography>
 
           {/* Formulário */}
           <Box component="form" onSubmit={handleSubmit}>
@@ -319,7 +396,7 @@ const LoginPage = () => {
               sx={{
                 color: "#9CA3AF",
                 textAlign: "center",
-                mb: 4,
+                mb: { xs: 3, md: 4 },
                 fontSize: "0.875rem",
               }}
             >
@@ -371,7 +448,7 @@ const LoginPage = () => {
                     alignItems: "center",
                     justifyContent: "space-between",
                     py: 1.5,
-                    px: 2,
+                    px: { xs: 1.5, sm: 2 },
                     "&:last-child": { pb: 1.5 },
                   }}
                 >
@@ -382,6 +459,7 @@ const LoginPage = () => {
                         fontWeight: 600,
                         color: "#111827",
                         mb: 0.5,
+                        fontSize: { xs: "0.875rem", sm: "0.9rem" },
                       }}
                     >
                       {access.label}
@@ -390,7 +468,7 @@ const LoginPage = () => {
                       variant="body2"
                       sx={{
                         color: "#6B7280",
-                        fontSize: "0.875rem",
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
                       }}
                     >
                       CPF: {access.cpf}
@@ -398,14 +476,14 @@ const LoginPage = () => {
                   </Box>
                   <Avatar
                     sx={{
-                      width: 40,
-                      height: 40,
+                      width: { xs: 36, sm: 40 },
+                      height: { xs: 36, sm: 40 },
                       backgroundColor:
                         selectedRole === access.role ? "#1A56DB" : "#F3F4F6",
                       color: selectedRole === access.role ? "white" : "#9CA3AF",
                     }}
                   >
-                    <PersonOutlineIcon />
+                    <PersonOutlineIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
                   </Avatar>
                 </CardContent>
               </Card>
@@ -419,6 +497,7 @@ const LoginPage = () => {
               textAlign: "center",
               display: "block",
               fontSize: "0.75rem",
+              pb: { xs: 2, md: 0 },
             }}
           >
             Clique em uma opção para preencher automaticamente
