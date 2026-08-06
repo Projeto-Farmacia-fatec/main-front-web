@@ -14,77 +14,24 @@ import {
   ListItemIcon,
   ListItemText,
   Avatar,
-  Menu,
-  MenuItem,
-  Chip,
+  Paper,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
-  Dashboard as DashboardIcon,
-  Receipt as ReceiptIcon,
-  Medication as MedicationIcon,
-  Inventory as InventoryIcon,
-  People as PeopleIcon,
-  Assessment as AssessmentIcon,
-  Settings as SettingsIcon,
+  HomeOutlined as HomeIcon,
   Logout as LogoutIcon,
-  AccountCircle,
+  Medication as MedicationIcon,
 } from "@mui/icons-material";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { useAuth } from "../contexts/AuthContext";
 
 const drawerWidth = 280;
 
-const menuItems = {
-  PACIENTE: [
-    { text: "Dashboard", icon: <DashboardIcon />, path: "/paciente/dashboard" },
-    { text: "Meus Pedidos", icon: <ReceiptIcon />, path: "/paciente/pedidos" },
-    {
-      text: "Medicamentos",
-      icon: <MedicationIcon />,
-      path: "/paciente/medicamentos",
-    },
-  ],
-  SECRETARIA: [
-    {
-      text: "Dashboard",
-      icon: <DashboardIcon />,
-      path: "/secretaria/dashboard",
-    },
-    { text: "Processos", icon: <ReceiptIcon />, path: "/secretaria/processos" },
-    {
-      text: "Medicamentos",
-      icon: <MedicationIcon />,
-      path: "/secretaria/medicamentos",
-    },
-    {
-      text: "Relatórios",
-      icon: <AssessmentIcon />,
-      path: "/secretaria/relatorios",
-    },
-  ],
-  FARMACIA: [
-    { text: "Dashboard", icon: <DashboardIcon />, path: "/farmacia/dashboard" },
-    { text: "Estoque", icon: <InventoryIcon />, path: "/farmacia/estoque" },
-    { text: "Pedidos", icon: <ReceiptIcon />, path: "/farmacia/pedidos" },
-    {
-      text: "Medicamentos",
-      icon: <MedicationIcon />,
-      path: "/farmacia/medicamentos",
-    },
-  ],
-  UBS: [
-    { text: "Dashboard", icon: <DashboardIcon />, path: "/ubs/dashboard" },
-    { text: "Pacientes", icon: <PeopleIcon />, path: "/ubs/pacientes" },
-    { text: "Pedidos", icon: <ReceiptIcon />, path: "/ubs/pedidos" },
-  ],
-};
-
 const AppLayout = () => {
   const [open, setOpen] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -95,16 +42,7 @@ const AppLayout = () => {
     setOpen(!open);
   };
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleLogout = () => {
-    handleClose();
     logout();
     navigate("/login");
   };
@@ -114,117 +52,62 @@ const AppLayout = () => {
       PACIENTE: "Paciente",
       SECRETARIA: "Secretaria",
       FARMACIA: "Farmácia",
-      UBS: "UBS",
+      UBS: "UBS,",
     };
     return labels[role] || role;
   };
 
-  const getRoleColor = (role) => {
-    const colors = {
-      PACIENTE: "primary",
-      SECRETARIA: "success",
-      FARMACIA: "warning",
-      UBS: "secondary",
+  const getPageTitle = () => {
+    if (location.pathname.includes("dashboard")) return "Dashboard";
+    if (location.pathname.includes("pedidos")) return "Meus Pedidos";
+    if (location.pathname.includes("medicamentos")) return "Medicamentos";
+    return "Dashboard";
+  };
+
+  const getPageSubtitle = () => {
+    const role = user?.role;
+    const subtitles = {
+      PACIENTE: "Área do Paciente",
+      SECREATARIA: "Área da Secretaria",
+      FARMACIA: "Área da Farmácia",
+      UBS: "Área da UBS",
     };
-    return colors[role] || "default";
+    return subtitles[role] || "Área do Usuário";
+  };
+
+  const menuItems = {
+    PACIENTE: [
+      { text: "Dashboard", icon: <HomeIcon />, path: "/paciente/dashboard" },
+      {
+        text: "Meus Pedidos",
+        icon: <MedicationIcon />,
+        path: "/paciente/pedidos",
+      },
+      {
+        text: "Medicamentos",
+        icon: <MedicationIcon />,
+        path: "/paciente/medicamentos",
+      },
+    ],
+    SECRETARIA: [
+      {
+        text: "Dashboard",
+        icon: <HomeIcon />,
+        path: "/secretaria/dashboard",
+      },
+    ],
+    FARMACIA: [
+      { text: "Dashboard", icon: <HomeIcon />, path: "/farmacia/dashboard" },
+    ],
+    UBS: [{ text: "Dashboard", icon: <HomeIcon />, path: "/ubs/dashboard" }],
   };
 
   const userMenuItems = user ? menuItems[user.role] || [] : [];
 
   return (
-    <Box sx={{ display: "flex" }}>
-      {/* AppBar */}
-      <AppBar
-        position="fixed"
-        sx={{
-          zIndex: theme.zIndex.drawer + 1,
-          transition: theme.transitions.create(["width", "margin"], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          ...(open && {
-            marginLeft: drawerWidth,
-            width: `calc(100% - ${drawerWidth}px)`,
-            transition: theme.transitions.create(["width", "margin"], {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
-          }),
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="toggle drawer"
-            onClick={handleDrawerToggle}
-            edge="start"
-            sx={{ mr: 2 }}
-          >
-            {open ? <ChevronLeftIcon /> : <MenuIcon />}
-          </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Sistema de Farmácia Judicial
-          </Typography>
-
-          {user && (
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Chip
-                label={getRoleLabel(user.role)}
-                color={getRoleColor(user.role)}
-                size="small"
-                sx={{ mr: 2 }}
-              />
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
-                <Avatar
-                  sx={{ width: 32, height: 32, bgcolor: "secondary.main" }}
-                >
-                  {user.name.charAt(0)}
-                </Avatar>
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                <MenuItem disabled>
-                  <Typography variant="body2">{user.name}</Typography>
-                </MenuItem>
-                <MenuItem disabled>
-                  <Typography variant="caption" color="text.secondary">
-                    {user.cpf}
-                  </Typography>
-                </MenuItem>
-                <Divider />
-                <MenuItem onClick={handleLogout}>
-                  <ListItemIcon>
-                    <LogoutIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Sair</ListItemText>
-                </MenuItem>
-              </Menu>
-            </Box>
-          )}
-        </Toolbar>
-      </AppBar>
-
-      {/* Sidebar */}
+    <Box
+      sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#F8F9FA" }}
+    >
       <Drawer
         variant={isMobile ? "temporary" : "permanent"}
         open={isMobile ? open : true}
@@ -235,71 +118,233 @@ const AppLayout = () => {
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             boxSizing: "border-box",
+            borderRight: "1px solid #E5E7EB",
+            backgroundColor: "#FFFFFF",
+            display: "flex",
+            flexDirection: "column",
           },
         }}
       >
-        <Toolbar />
-        <Box sx={{ overflow: "auto", mt: 2 }}>
-          <List>
-            {userMenuItems.map((item) => (
-              <ListItem key={item.text} disablePadding>
-                <ListItemButton
-                  selected={location.pathname === item.path}
-                  onClick={() => {
-                    navigate(item.path);
-                    if (isMobile) setOpen(false);
-                  }}
-                  sx={{
-                    mx: 1,
-                    borderRadius: 2,
-                    mb: 0.5,
-                    "&.Mui-selected": {
-                      backgroundColor: "primary.light",
-                      color: "white",
-                      "&:hover": {
-                        backgroundColor: "primary.main",
-                      },
-                      "& .MuiListItemIcon-root": {
-                        color: "white",
-                      },
-                    },
-                  }}
-                >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.text} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-          <Divider sx={{ my: 2 }} />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton
-                sx={{ mx: 1, borderRadius: 2 }}
-                onClick={() => {}} // Configurações futura
+        <Box sx={{ p: 2.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 2,
+                backgroundColor: "#1A56DB",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mr: 1.5,
+                boxShadow: "0 2px 8px rgba(26, 86, 219, 0.2)",
+              }}
+            >
+              <MedicationIcon sx={{ color: "white", fontSize: 28 }} />
+            </Box>
+            <Box>
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                  fontSize: "16px",
+                  color: "#111827",
+                  lineHeight: 1.2,
+                }}
               >
-                <ListItemIcon>
-                  <SettingsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Configurações" />
+                Farmácia Judicial
+              </Typography>
+              <Typography
+                sx={{ fontSize: "12px", color: "#6B7280", lineHeight: 1.2 }}
+              >
+                Franco da Rocha
+              </Typography>
+            </Box>
+          </Box>
+          <Box sx={{ mb: 1 }}>
+            <Typography
+              sx={{
+                fontSize: "11px",
+                fontWeight: 600,
+                color: "#9CA3AF",
+                letterSpacing: "0.5px",
+                mb: 0.5,
+              }}
+            >
+              PERFIL
+            </Typography>
+            <Typography
+              sx={{ fontSize: "14px", fontWeight: 600, color: "#111827" }}
+            >
+              {getRoleLabel(user?.role)}
+            </Typography>
+          </Box>
+        </Box>
+        <Divider sx={{ mx: 2 }} />
+        <List sx={{ flex: 1, px: 1.5, pt: 1 }}>
+          {userMenuItems.map((item) => (
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton
+                selected={location.pathname === item.path}
+                onClick={() => {
+                  navigate(item.path);
+                  if (isMobile) setOpen(false);
+                }}
+                sx={{
+                  borderRadius: 2,
+                  mb: 0.5,
+                  py: 1.2,
+                  "&.Mui-selected": {
+                    backgroundColor: "#F0F5FF",
+                    color: "#1A56DB",
+                    "&:hover": {
+                      backgroundColor: "#E0EBFF",
+                    },
+                    "& .MuiListItemIcon-root": {
+                      color: "#1A56DB",
+                    },
+                    "& .MuiListItemText-primary": {
+                      fontWeight: 600,
+                    },
+                  },
+                  "&.hover": {
+                    backgroundColor: "#F9FAFB",
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{
+                    fontSize: "14px",
+                    fontWeight: location.pathname === item.path ? 600 : 400,
+                  }}
+                />
               </ListItemButton>
             </ListItem>
-          </List>
+          ))}
+        </List>
+        <Box sx={{ p: 2, borderTop: "1px solid #E5E7EB" }}>
+          <ListItemButton
+            onClick={handleLogout}
+            sx={{
+              borderRadius: 2,
+              py: 1.2,
+              color: "#EF4444",
+              "&:hover": { backgroundColor: "#FEF2F2" },
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <LogoutIcon sx={{ color: "#EF4444" }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="Sair"
+              primaryTypographyProps={{
+                fontSize: "14px",
+                fontWeight: 500,
+                color: "#EF4444",
+              }}
+            />
+          </ListItemButton>
         </Box>
       </Drawer>
-
-      {/* Conteúdo Principal */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          mt: 8,
-          backgroundColor: "background.default",
+          display: "flex",
+          flexDirection: "column",
           minHeight: "100vh",
+          overflow: "hidden",
         }}
       >
-        <Outlet />
+        <AppBar
+          position="static"
+          elevation={0}
+          sx={{ backgroundColor: "#FFFFFF", borderBottom: "1px solid #E5E7EB" }}
+        >
+          <Toolbar
+            sx={{
+              justifyContent: "space-between",
+              px: { xs: 2, md: 4 },
+              py: 1,
+            }}
+          >
+            <Box>
+              {isMobile && (
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  edge="start"
+                  onClick={handleDrawerToggle}
+                  sx={{ mr: 2, color: "#111827" }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 700,
+                  color: "#111827",
+                  fontSize: { xs: "1.25rem", md: "1.5rem" },
+                }}
+              >
+                {getPageTitle()}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: "#6B7280", fontSize: "14px", mt: 0.5 }}
+              >
+                {getPageSubtitle()}
+              </Typography>
+            </Box>
+            <Paper
+              elevation={0}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: "#F3F4F6",
+                borderRadius: 3,
+                px: 2,
+                py: 1,
+                gap: 1.5,
+              }}
+            >
+              <Box>
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    color: "#111827",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {user?.name}
+                </Typography>
+                <Typography
+                  sx={{ fontSize: "12px", color: "#6B7280", lineHeight: 1.2 }}
+                >
+                  {user?.cpf}
+                </Typography>
+              </Box>
+              <Avatar
+                sx={{ width: 36, height: 36, backgroundColor: "#1A56DB" }}
+              >
+                <PersonOutlineOutlinedIcon sx={{ fontSize: 20 }} />
+              </Avatar>
+            </Paper>
+          </Toolbar>
+        </AppBar>
+        <Box
+          sx={{
+            flex: 1,
+            p: { xs: 2, md: 4 },
+            overflow: "auto",
+            backgroundColor: "#F8F9FA",
+          }}
+        >
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );

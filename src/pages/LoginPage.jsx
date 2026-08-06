@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Medicamento from "../assets/medicamento.png";
 import {
   Box,
   TextField,
@@ -74,11 +75,6 @@ const LoginPage = () => {
       return;
     }
 
-    if (!selectedRole) {
-      setError("Por favor, selecione um perfil de acesso");
-      return;
-    }
-
     try {
       const user = await login(cpf, password, selectedRole);
 
@@ -122,7 +118,7 @@ const LoginPage = () => {
         overflow: "hidden",
       }}
     >
-      {/* Lado Esquerdo - Banner Azul (Visível apenas em telas md+ */}
+      {/* Lado Esquerdo - Banner Azul com Imagem de Fundo */}
       <Box
         sx={{
           width: "50%",
@@ -133,68 +129,108 @@ const LoginPage = () => {
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
-          "&::before": {
-            content: '""',
+          overflow: "hidden",
+        }}
+      >
+        {/* Imagem de fundo ocupando toda a área azul */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100%",
+            height: "100%",
+            backgroundImage: `url(${Medicamento})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            opacity: 0.15,
+            zIndex: 0,
+          }}
+        />
+
+        {/* Overlay com gradiente para melhorar legibilidade */}
+        <Box
+          sx={{
             position: "absolute",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
             background:
-              "radial-gradient(circle at 50% 40%, rgba(255,255,255,0.1) 0%, transparent 70%)",
-          },
-        }}
-      >
-        {/* Círculo com ícone */}
+              "radial-gradient(circle at 50% 40%, rgba(255,255,255,0.08) 0%, transparent 70%)",
+            zIndex: 0,
+          }}
+        />
+
+        {/* Conteúdo centralizado */}
         <Box
           sx={{
-            width: 120,
-            height: 120,
-            borderRadius: "50%",
-            backgroundColor: "white",
+            position: "relative",
+            zIndex: 1,
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            mb: 4,
-            zIndex: 1,
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+            width: "100%",
+            px: 4,
           }}
         >
-          <MedicationIcon sx={{ fontSize: 64, color: "#1A56DB" }} />
-        </Box>
+          {/* Círculo com ícone */}
+          <Box
+            sx={{
+              width: 120,
+              height: 120,
+              borderRadius: "50%",
+              backgroundColor: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mb: 4,
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            <MedicationIcon sx={{ fontSize: 64, color: "#1A56DB" }} />
+          </Box>
 
-        {/* Textos */}
-        <Box sx={{ textAlign: "center", zIndex: 1, px: 4 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 700,
-              color: "white",
-              mb: 1,
-              fontSize: { xs: "1.5rem", md: "2rem" },
-            }}
-          >
-            Sistema de Farmácia Judicial
-          </Typography>
-          <Typography
-            variant="h6"
-            sx={{
-              color: "rgba(255, 255, 255, 0.8)",
-              fontWeight: 400,
-              mb: 2,
-            }}
-          >
-            Franco da Rocha
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: "rgba(255, 255, 255, 0.7)",
-              fontWeight: 300,
-            }}
-          >
-            Gerenciamento e agendamento de medicamentos
-          </Typography>
+          {/* Textos */}
+          <Box sx={{ textAlign: "center", width: "100%" }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                color: "white",
+                mb: 1,
+                fontSize: { xs: "1.5rem", md: "2rem" },
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              }}
+            >
+              Sistema de Farmácia Judicial
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                color: "rgba(255, 255, 255, 0.9)",
+                fontWeight: 400,
+                mb: 2,
+                textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+              }}
+            >
+              Franco da Rocha
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "rgba(255, 255, 255, 0.8)",
+                fontWeight: 300,
+                textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+              }}
+            >
+              Gerenciamento e agendamento de medicamentos
+            </Typography>
+          </Box>
         </Box>
       </Box>
 
@@ -220,7 +256,7 @@ const LoginPage = () => {
             my: { xs: "auto", md: 0 },
           }}
         >
-          {/* Cabeçalho Compacto Mobile (Visível apenas em telas xs e sm) */}
+          {/* Cabeçalho Compacto Mobile */}
           <Box
             sx={{
               display: { xs: "flex", md: "none" },
@@ -241,6 +277,9 @@ const LoginPage = () => {
                 justifyContent: "center",
                 mb: 2,
                 boxShadow: "0 4px 12px rgba(26, 86, 219, 0.3)",
+                backgroundImage: `url(${Medicamento})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
               }}
             >
               <MedicationIcon sx={{ fontSize: 36, color: "white" }} />
@@ -267,7 +306,7 @@ const LoginPage = () => {
             </Typography>
           </Box>
 
-          {/* Cabeçalho Desktop (Visível apenas em telas md+) */}
+          {/* Cabeçalho Desktop */}
           <Box
             sx={{
               display: { xs: "none", md: "block" },
