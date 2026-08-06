@@ -78,16 +78,6 @@ const AppLayout = () => {
   const menuItems = {
     PACIENTE: [
       { text: "Dashboard", icon: <HomeIcon />, path: "/paciente/dashboard" },
-      {
-        text: "Meus Pedidos",
-        icon: <MedicationIcon />,
-        path: "/paciente/pedidos",
-      },
-      {
-        text: "Medicamentos",
-        icon: <MedicationIcon />,
-        path: "/paciente/medicamentos",
-      },
     ],
     SECRETARIA: [
       {
