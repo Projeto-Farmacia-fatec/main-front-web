@@ -6,145 +6,125 @@ import {
   Typography,
   Paper,
   Grid,
+  TextField,
+  Button,
+  MenuItem,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  InputAdornment,
   Card,
   CardContent,
-  Chip,
-  Badge,
-  Button,
-  IconButton,
+  CardActions,
   Divider,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import {
-  MedicationOutlined as MedicationIcon,
-  CalendarTodayOutlined as CalendarIcon,
-  NotificationsNoneOutlined as NotificationsIcon,
-  PersonOutline as PersonIcon,
-  AccessTime as AccessTimeIcon,
-  CheckCircleOutline as CheckCircleIcon,
-  ErrorOutline as ErrorOutlineIcon,
-  InfoOutlined as InfoIcon,
-  Phone as PhoneIcon,
-  Email as EmailIcon,
-  LocationOn as LocationOnIcon,
-  Close as CloseIcon,
-  Check as CheckIcon,
-  Circle as CircleIcon,
+  PeopleAltOutlined,
+  LinkOutlined,
+  CalendarTodayOutlined,
+  InboxOutlined,
+  Search as SearchIcon,
+  VisibilityOutlined,
+  CheckCircleOutline,
+  SaveOutlined,
 } from "@mui/icons-material";
 
-// Dados mockados dos medicamentos
-const MEDICAMENTOS_MOCK = [
+// Dados mockados para Pacientes
+const PACIENTES_MOCK = [
+  {
+    id: 1,
+    nome: "João Silva",
+    medicamento: "Losartana 50mg",
+    status: "Ativo",
+    proximaRetirada: "04/05/2026",
+  },
+  {
+    id: 2,
+    nome: "Maria Santos",
+    medicamento: "Metformina 850mg",
+    status: "Ativo",
+    proximaRetirada: "11/05/2026",
+  },
+  {
+    id: 3,
+    nome: "Pedro Alves",
+    medicamento: "Sinvastatina 20mg",
+    status: "Inativo",
+    proximaRetirada: "-",
+  },
+];
+
+// Dados mockados para Medicamentos
+const MEDICAMENTOS_INICIAIS = [
   {
     id: 1,
     nome: "Losartana 50mg",
-    quantidade: "30 comp.",
-    proximaRetirada: "04/05/2026",
-    status: "Ativo",
-    dosagem: "50mg",
-    frequencia: "1x ao dia",
+    disponivel: true,
   },
   {
     id: 2,
     nome: "Metformina 850mg",
-    quantidade: "60 comp.",
-    proximaRetirada: "15/05/2026",
-    status: "Ativo",
-    dosagem: "850mg",
-    frequencia: "2x ao dia",
+    disponivel: true,
   },
   {
     id: 3,
     nome: "Sinvastatina 20mg",
-    quantidade: "30 comp.",
-    proximaRetirada: "28/04/2026",
-    status: "Em falta",
-    dosagem: "20mg",
-    frequencia: "1x ao dia",
-  },
-];
-
-// Dados mockados das notificações
-const NOTIFICACOES_INICIAIS = [
-  {
-    id: 1,
-    tipo: "sucesso",
-    icone: <CheckCircleIcon />,
-    cor: "#10B981",
-    bgColor: "#ECFDF5",
-    titulo: "Retirada Registrada",
-    descricao:
-      "Sua retirada de Losartana 50mg foi registrada com sucesso. Agende sua próxima retirada.",
-    data: "28/04/2026, 14:30",
-    naoLida: true,
-  },
-  {
-    id: 2,
-    tipo: "info",
-    icone: <CalendarIcon />,
-    cor: "#3B82F6",
-    bgColor: "#EFF6FF",
-    titulo: "Agendamento Próximo",
-    descricao:
-      "Você tem um agendamento para retirada de Metformina 850mg amanhã às 09:00.",
-    data: "28/04/2026, 10:00",
-    naoLida: true,
-  },
-  {
-    id: 3,
-    tipo: "erro",
-    icone: <ErrorOutlineIcon />,
-    cor: "#EF4444",
-    bgColor: "#FEF2F2",
-    titulo: "Falta Registrada",
-    descricao:
-      "Sua falta no agendamento de 22/04 foi registrada. Por favor, justifique e realize um novo agendamento.",
-    data: "23/04/2026, 16:45",
-    naoLida: false,
+    disponivel: true,
   },
   {
     id: 4,
-    tipo: "neutro",
-    icone: <InfoIcon />,
-    cor: "#6B7280",
-    bgColor: "#F9FAFB",
-    titulo: "Medicamento Disponível",
-    descricao:
-      "O medicamento Sinvastatina 20mg está disponível para agendamento.",
-    data: "20/04/2026, 09:00",
-    naoLida: false,
+    nome: "Enalapril 10mg",
+    disponivel: false,
   },
 ];
 
-// Gerar dias do mês para o calendário
-const gerarDiasCalendario = () => {
-  const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-  const dias = [];
+// Dias da semana
+const DIAS_SEMANA = [
+  "Segunda-feira",
+  "Terça-feira",
+  "Quarta-feira",
+  "Quinta-feira",
+  "Sexta-feira",
+  "Sábado",
+  "Domingo",
+];
 
-  // Agosto 2026 começa em um sábado (dia 1)
-  const primeiroDiaSemana = 6; // 0 = Domingo, 6 = Sábado
-  const totalDias = 31;
-
-  // Preencher dias vazios antes do dia 1
-  for (let i = 0; i < primeiroDiaSemana; i++) {
-    dias.push(null);
-  }
-
-  // Preencher os dias do mês
-  for (let i = 1; i <= totalDias; i++) {
-    dias.push(i);
-  }
-
-  return { diasSemana, dias };
-};
-
-const HORARIOS_DISPONIVEIS = [
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
+// Dados mockados para Agendamentos
+const AGENDAMENTOS_INICIAIS = [
+  {
+    id: 1,
+    nome: "João Silva",
+    medicamento: "Losartana 50mg",
+    data: "04/05/2026",
+    horario: "09:00",
+    quantidade: "30 comp.",
+    status: "Confirmado",
+  },
+  {
+    id: 2,
+    nome: "Maria Santos",
+    medicamento: "Metformina 850mg",
+    data: "04/05/2026",
+    horario: "10:00",
+    quantidade: "60 comp.",
+    status: "Pendente",
+  },
+  {
+    id: 3,
+    nome: "Pedro Alves",
+    medicamento: "Sinvastatina 20mg",
+    data: "05/05/2026",
+    horario: "14:00",
+    quantidade: "30 comp.",
+    status: "Pendente",
+  },
 ];
 
 function TabPanel({ children, value, index, ...other }) {
@@ -161,74 +141,104 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
-const PacienteDashboard = () => {
+const FarmaciaDashboard = () => {
   const [tabValue, setTabValue] = useState(0);
 
-  // Estados do Agendamento
-  const [dataSelecionada, setDataSelecionada] = useState(null);
-  const [horarioSelecionado, setHorarioSelecionado] = useState(null);
-  const [agendamentoConfirmado, setAgendamentoConfirmado] = useState({
-    status: true,
-    data: "04/05/2026",
-    horario: "09:00",
-  });
+  // Estados da Aba 1: Pacientes
+  const [searchPaciente, setSearchPaciente] = useState("");
 
-  // Estados das Notificações
-  const [notificacoes, setNotificacoes] = useState(NOTIFICACOES_INICIAIS);
+  // Estados da Aba 2: Medicamentos
+  const [searchMedicamento, setSearchMedicamento] = useState("");
+  const [medicamentos, setMedicamentos] = useState(MEDICAMENTOS_INICIAIS);
+
+  // Estados da Aba 3: Disponibilidade
+  const [medicamentoSelecionado, setMedicamentoSelecionado] =
+    useState("Losartana 50mg");
+  const [diasSelecionados, setDiasSelecionados] = useState([
+    "Segunda-feira",
+    "Quarta-feira",
+    "Sexta-feira",
+  ]);
+
+  // Estados da Aba 4: Agendamentos
+  const [agendamentos, setAgendamentos] = useState(AGENDAMENTOS_INICIAIS);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  const handleSelecionarData = (dia) => {
-    setDataSelecionada(dia);
-    setHorarioSelecionado(null);
-  };
-
-  const handleSelecionarHorario = (horario) => {
-    setHorarioSelecionado(horario);
-  };
-
-  const handleConfirmarAgendamento = () => {
-    if (dataSelecionada && horarioSelecionado) {
-      const dataFormatada = `${String(dataSelecionada).padStart(2, "0")}/08/2026`;
-      setAgendamentoConfirmado({
-        status: true,
-        data: dataFormatada,
-        horario: horarioSelecionado,
-      });
-      setDataSelecionada(null);
-      setHorarioSelecionado(null);
-    }
-  };
-
-  const handleCancelarAgendamento = () => {
-    setAgendamentoConfirmado({ status: false, data: "", horario: "" });
-  };
-
-  const handleMarcarComoLida = (id) => {
-    setNotificacoes(
-      notificacoes.map((notif) =>
-        notif.id === id ? { ...notif, naoLida: false } : notif,
+  const handleToggleDisponibilidade = (id) => {
+    setMedicamentos(
+      medicamentos.map((med) =>
+        med.id === id ? { ...med, disponivel: !med.disponivel } : med,
       ),
     );
   };
 
-  const handleRemoverNotificacao = (id) => {
-    setNotificacoes(notificacoes.filter((notif) => notif.id !== id));
+  const handleToggleDia = (dia) => {
+    setDiasSelecionados((prev) =>
+      prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia],
+    );
   };
 
-  const notificacoesNaoLidas = notificacoes.filter((n) => n.naoLida).length;
-  const { diasSemana, dias } = gerarDiasCalendario();
+  const handleConfirmarAgendamento = (id) => {
+    setAgendamentos(
+      agendamentos.map((ag) =>
+        ag.id === id ? { ...ag, status: "Confirmado" } : ag,
+      ),
+    );
+  };
 
-  const isDataPassada = (dia) => {
-    // Simulação: dias antes de 5 são passados
-    return dia !== null && dia < 5;
+  const filteredPacientes = PACIENTES_MOCK.filter(
+    (p) =>
+      p.nome.toLowerCase().includes(searchPaciente.toLowerCase()) ||
+      p.medicamento.toLowerCase().includes(searchPaciente.toLowerCase()),
+  );
+
+  const filteredMedicamentos = medicamentos.filter((m) =>
+    m.nome.toLowerCase().includes(searchMedicamento.toLowerCase()),
+  );
+
+  const getStatusChip = (status) => {
+    const configs = {
+      Ativo: { bg: "#ECFDF5", color: "#059669", dot: "#10B981" },
+      Inativo: { bg: "#FDF2F8", color: "#BE185D", dot: "#EC4899" },
+      Confirmado: { bg: "#ECFDF5", color: "#059669", dot: "#10B981" },
+      Pendente: { bg: "#FEF3C7", color: "#D97706", dot: "#F59E0B" },
+      Disponível: { bg: "#ECFDF5", color: "#059669", dot: "#10B981" },
+      Indisponível: { bg: "#FDF2F8", color: "#BE185D", dot: "#EC4899" },
+    };
+
+    const config = configs[status] || configs.Ativo;
+
+    return (
+      <Chip
+        label={status}
+        size="small"
+        icon={
+          <Box
+            sx={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              backgroundColor: config.dot,
+              ml: 1,
+            }}
+          />
+        }
+        sx={{
+          backgroundColor: config.bg,
+          color: config.color,
+          fontWeight: 600,
+          fontSize: "12px",
+          borderRadius: 2,
+        }}
+      />
+    );
   };
 
   return (
     <Box>
-      {/* Sistema de Abas */}
       <Paper
         elevation={0}
         sx={{
@@ -264,1223 +274,653 @@ const PacienteDashboard = () => {
           }}
         >
           <Tab
-            icon={<MedicationIcon sx={{ fontSize: 20 }} />}
-            label="Medicamentos"
+            icon={<PeopleAltOutlined sx={{ fontSize: 20 }} />}
+            label="Pacientes"
             iconPosition="start"
           />
           <Tab
-            icon={<CalendarIcon sx={{ fontSize: 20 }} />}
-            label="Agendamento"
+            icon={<LinkOutlined sx={{ fontSize: 20 }} />}
+            label="Lista de Medicamentos"
             iconPosition="start"
           />
           <Tab
-            icon={
-              <Badge
-                badgeContent={notificacoesNaoLidas}
-                color="error"
-                sx={{ "& .MuiBadge-badge": { fontSize: 10 } }}
-              >
-                <NotificationsIcon sx={{ fontSize: 20 }} />
-              </Badge>
-            }
-            label="Notificações"
+            icon={<CalendarTodayOutlined sx={{ fontSize: 20 }} />}
+            label="Disponibilidade"
             iconPosition="start"
           />
           <Tab
-            icon={<PersonIcon sx={{ fontSize: 20 }} />}
-            label="Minhas Informações"
+            icon={<InboxOutlined sx={{ fontSize: 20 }} />}
+            label="Agendamentos"
             iconPosition="start"
           />
         </Tabs>
 
-        {/* ==================== ABA MEDICAMENTOS ==================== */}
+        {/* ==================== ABA 1: PACIENTES ==================== */}
         <TabPanel value={tabValue} index={0}>
           <Box sx={{ px: 3, pb: 3 }}>
+            {/* Cabeçalho */}
             <Box sx={{ mb: 3 }}>
               <Typography
                 variant="h6"
                 sx={{ fontWeight: 700, color: "#111827", mb: 0.5 }}
               >
-                Meus Medicamentos
+                Pacientes e Tratamentos
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ color: "#6B7280", fontSize: "14px" }}
               >
-                Acompanhe seus medicamentos em uso e as próximas datas de
-                retirada
+                Lista de pacientes cadastrados e seus medicamentos
               </Typography>
             </Box>
 
-            <Grid container spacing={2}>
-              {MEDICAMENTOS_MOCK.map((medicamento) => (
-                <Grid item xs={12} key={medicamento.id}>
-                  <Card
-                    elevation={0}
-                    sx={{
-                      border: "1px solid #E5E7EB",
-                      borderRadius: 3,
-                      transition: "all 0.2s ease",
-                      "&:hover": {
-                        borderColor: "#1A56DB",
-                        boxShadow: "0 2px 12px rgba(26, 86, 219, 0.08)",
-                      },
-                    }}
-                  >
-                    <CardContent sx={{ p: 3 }}>
-                      <Grid container spacing={3} alignItems="center">
-                        <Grid item xs={12} md={4}>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 2,
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                width: 48,
-                                height: 48,
-                                borderRadius: 2,
-                                backgroundColor: "#EFF6FF",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flexShrink: 0,
-                              }}
-                            >
-                              <MedicationIcon
-                                sx={{ color: "#1A56DB", fontSize: 24 }}
-                              />
-                            </Box>
-                            <Box>
-                              <Typography
-                                sx={{
-                                  fontWeight: 600,
-                                  fontSize: "16px",
-                                  color: "#111827",
-                                  mb: 0.5,
-                                }}
-                              >
-                                {medicamento.nome}
-                              </Typography>
-                              <Typography
-                                sx={{ fontSize: "13px", color: "#6B7280" }}
-                              >
-                                {medicamento.dosagem} • {medicamento.frequencia}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </Grid>
+            {/* Campo de Busca */}
+            <TextField
+              fullWidth
+              placeholder="Buscar paciente..."
+              value={searchPaciente}
+              onChange={(e) => setSearchPaciente(e.target.value)}
+              sx={{ mb: 3 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: "#9CA3AF" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-                        <Grid item xs={4} md={3}>
-                          <Typography
-                            sx={{
-                              fontSize: "12px",
-                              color: "#9CA3AF",
-                              fontWeight: 500,
-                              mb: 0.5,
-                            }}
-                          >
-                            Quantidade Disponível
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontWeight: 600,
-                              fontSize: "16px",
-                              color: "#111827",
-                            }}
-                          >
-                            {medicamento.quantidade}
-                          </Typography>
-                        </Grid>
-
-                        <Grid item xs={4} md={3}>
-                          <Typography
-                            sx={{
-                              fontSize: "12px",
-                              color: "#9CA3AF",
-                              fontWeight: 500,
-                              mb: 0.5,
-                            }}
-                          >
-                            Próxima Retirada
-                          </Typography>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 0.5,
-                            }}
-                          >
-                            <CalendarIcon
-                              sx={{ fontSize: 16, color: "#6B7280" }}
-                            />
-                            <Typography
-                              sx={{
-                                fontWeight: 600,
-                                fontSize: "16px",
-                                color: "#111827",
-                              }}
-                            >
-                              {medicamento.proximaRetirada}
-                            </Typography>
-                          </Box>
-                        </Grid>
-
-                        <Grid item xs={4} md={2}>
-                          <Typography
-                            sx={{
-                              fontSize: "12px",
-                              color: "#9CA3AF",
-                              fontWeight: 500,
-                              mb: 0.5,
-                            }}
-                          >
-                            Status do Tratamento
-                          </Typography>
-                          <Chip
-                            label={medicamento.status}
-                            size="small"
-                            icon={
-                              <Box
-                                sx={{
-                                  width: 6,
-                                  height: 6,
-                                  borderRadius: "50%",
-                                  backgroundColor:
-                                    medicamento.status === "Ativo"
-                                      ? "#10B981"
-                                      : "#EF4444",
-                                  ml: 1,
-                                }}
-                              />
-                            }
-                            sx={{
-                              backgroundColor:
-                                medicamento.status === "Ativo"
-                                  ? "#ECFDF5"
-                                  : "#FEF2F2",
-                              color:
-                                medicamento.status === "Ativo"
-                                  ? "#059669"
-                                  : "#DC2626",
-                              fontWeight: 600,
-                              fontSize: "13px",
-                              borderRadius: 2,
-                            }}
-                          />
-                        </Grid>
-                      </Grid>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-        </TabPanel>
-
-        {/* ==================== ABA AGENDAMENTO ==================== */}
-        <TabPanel value={tabValue} index={1}>
-          <Box sx={{ px: 3, pb: 3 }}>
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 700, color: "#111827", mb: 0.5 }}
-              >
-                Agendamento de Retirada
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "#6B7280", fontSize: "14px" }}
-              >
-                Selecione uma data e horário disponíveis para retirar seus
-                medicamentos
-              </Typography>
-            </Box>
-
-            {/* Banner de Agendamento Confirmado */}
-            {agendamentoConfirmado.status && (
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 2.5,
-                  mb: 3,
-                  backgroundColor: "#ECFDF5",
-                  border: "1px solid #A7F3D0",
-                  borderRadius: 3,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                  gap: 2,
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <CheckCircleIcon sx={{ color: "#059669", fontSize: 24 }} />
-                  <Box>
-                    <Typography
+            {/* Tabela de Pacientes */}
+            <TableContainer
+              component={Paper}
+              elevation={0}
+              sx={{ border: "1px solid #E5E7EB", borderRadius: 2 }}
+            >
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "#F9FAFB" }}>
+                    <TableCell
                       sx={{
                         fontWeight: 600,
-                        color: "#059669",
-                        fontSize: "15px",
+                        color: "#6B7280",
+                        fontSize: "13px",
                       }}
                     >
-                      Agendamento Confirmado
-                    </Typography>
-                    <Typography sx={{ color: "#059669", fontSize: "14px" }}>
-                      Data: {agendamentoConfirmado.data} às{" "}
-                      {agendamentoConfirmado.horario}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() =>
-                      setAgendamentoConfirmado({
-                        status: false,
-                        data: "",
-                        horario: "",
-                      })
-                    }
-                    sx={{
-                      borderColor: "#059669",
-                      color: "#059669",
-                      textTransform: "none",
-                      fontWeight: 600,
-                      "&:hover": {
-                        borderColor: "#047857",
-                        backgroundColor: "#D1FAE5",
-                      },
-                    }}
-                  >
-                    Reagendar
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={handleCancelarAgendamento}
-                    sx={{
-                      borderColor: "#EF4444",
-                      color: "#EF4444",
-                      textTransform: "none",
-                      fontWeight: 600,
-                      "&:hover": {
-                        borderColor: "#DC2626",
-                        backgroundColor: "#FEF2F2",
-                      },
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                </Box>
-              </Paper>
-            )}
-
-            {/* Grid de Seleção */}
-            <Grid container spacing={3}>
-              {/* Coluna Esquerda - Calendário */}
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    border: "1px solid #E5E7EB",
-                    borderRadius: 3,
-                    p: 2.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      mb: 2.5,
-                    }}
-                  >
-                    <CalendarIcon sx={{ color: "#1A56DB", fontSize: 20 }} />
-                    <Typography
+                      NOME
+                    </TableCell>
+                    <TableCell
                       sx={{
                         fontWeight: 600,
-                        fontSize: "15px",
-                        color: "#111827",
+                        color: "#6B7280",
+                        fontSize: "13px",
                       }}
                     >
-                      Selecione a Data
-                    </Typography>
-                  </Box>
-
-                  {/* Cabeçalho do Mês */}
-                  <Box sx={{ mb: 2 }}>
-                    <Typography
+                      MEDICAMENTO
+                    </TableCell>
+                    <TableCell
                       sx={{
                         fontWeight: 600,
-                        fontSize: "16px",
-                        color: "#111827",
-                        textAlign: "center",
+                        color: "#6B7280",
+                        fontSize: "13px",
                       }}
                     >
-                      Agosto 2026
-                    </Typography>
-                  </Box>
-
-                  {/* Dias da Semana */}
-                  <Grid container spacing={0.5} sx={{ mb: 1 }}>
-                    {diasSemana.map((dia) => (
-                      <Grid item xs={12 / 7} key={dia}>
-                        <Typography
+                      STATUS
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: "#6B7280",
+                        fontSize: "13px",
+                      }}
+                    >
+                      PRÓXIMA RETIRADA
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: "#6B7280",
+                        fontSize: "13px",
+                      }}
+                    >
+                      AÇÕES
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredPacientes.map((paciente) => (
+                    <TableRow key={paciente.id} hover>
+                      <TableCell sx={{ fontWeight: 500, color: "#111827" }}>
+                        {paciente.nome}
+                      </TableCell>
+                      <TableCell sx={{ color: "#6B7280" }}>
+                        {paciente.medicamento}
+                      </TableCell>
+                      <TableCell>{getStatusChip(paciente.status)}</TableCell>
+                      <TableCell sx={{ color: "#6B7280" }}>
+                        {paciente.proximaRetirada}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="small"
+                          startIcon={
+                            <VisibilityOutlined sx={{ fontSize: 16 }} />
+                          }
                           sx={{
-                            textAlign: "center",
+                            textTransform: "none",
                             fontSize: "12px",
                             fontWeight: 600,
-                            color: "#9CA3AF",
-                            py: 0.5,
+                            backgroundColor: "#EFF6FF",
+                            color: "#1A56DB",
+                            borderRadius: 2,
+                            px: 1.5,
+                            "&:hover": { backgroundColor: "#DBEAFE" },
                           }}
                         >
-                          {dia}
-                        </Typography>
-                      </Grid>
-                    ))}
-                  </Grid>
-
-                  {/* Dias do Mês */}
-                  <Grid container spacing={0.5}>
-                    {dias.map((dia, index) => (
-                      <Grid item xs={12 / 7} key={index}>
-                        {dia ? (
-                          <Button
-                            fullWidth
-                            disabled={isDataPassada(dia)}
-                            onClick={() => handleSelecionarData(dia)}
-                            sx={{
-                              minWidth: 0,
-                              aspectRatio: "1",
-                              p: 0,
-                              borderRadius: 2,
-                              fontSize: "14px",
-                              fontWeight: dataSelecionada === dia ? 700 : 500,
-                              backgroundColor:
-                                dataSelecionada === dia
-                                  ? "#1A56DB"
-                                  : "transparent",
-                              color:
-                                dataSelecionada === dia
-                                  ? "white"
-                                  : isDataPassada(dia)
-                                    ? "#D1D5DB"
-                                    : "#111827",
-                              "&:hover": {
-                                backgroundColor:
-                                  dataSelecionada === dia
-                                    ? "#1E40AF"
-                                    : "#F3F4F6",
-                              },
-                              "&.Mui-disabled": {
-                                color: "#D1D5DB",
-                              },
-                            }}
-                          >
-                            {dia}
-                          </Button>
-                        ) : (
-                          <Box sx={{ aspectRatio: "1" }} />
-                        )}
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Paper>
-              </Grid>
-
-              {/* Coluna Direita - Horários */}
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    border: "1px solid #E5E7EB",
-                    borderRadius: 3,
-                    p: 2.5,
-                    minHeight: "100%",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      mb: 2.5,
-                    }}
-                  >
-                    <AccessTimeIcon sx={{ color: "#1A56DB", fontSize: 20 }} />
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: "15px",
-                        color: "#111827",
-                      }}
-                    >
-                      Selecione o Horário
-                    </Typography>
-                  </Box>
-
-                  {!dataSelecionada ? (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        height: 200,
-                      }}
-                    >
-                      <Typography sx={{ color: "#9CA3AF", fontSize: "14px" }}>
-                        Selecione uma data primeiro
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <Grid container spacing={1.5}>
-                      {HORARIOS_DISPONIVEIS.map((horario) => (
-                        <Grid item xs={6} key={horario}>
-                          <Button
-                            fullWidth
-                            variant={
-                              horarioSelecionado === horario
-                                ? "contained"
-                                : "outlined"
-                            }
-                            onClick={() => handleSelecionarHorario(horario)}
-                            sx={{
-                              py: 1.5,
-                              borderRadius: 2,
-                              textTransform: "none",
-                              fontWeight: 600,
-                              fontSize: "14px",
-                              borderColor:
-                                horarioSelecionado === horario
-                                  ? "#1A56DB"
-                                  : "#E5E7EB",
-                              backgroundColor:
-                                horarioSelecionado === horario
-                                  ? "#1A56DB"
-                                  : "white",
-                              color:
-                                horarioSelecionado === horario
-                                  ? "white"
-                                  : "#111827",
-                              "&:hover": {
-                                borderColor: "#1A56DB",
-                                backgroundColor:
-                                  horarioSelecionado === horario
-                                    ? "#1E40AF"
-                                    : "#F0F5FF",
-                              },
-                            }}
-                          >
-                            {horario}
-                          </Button>
-                        </Grid>
-                      ))}
-                    </Grid>
-                  )}
-                </Paper>
-              </Grid>
-            </Grid>
-
-            {/* Botão Confirmar */}
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-              <Button
-                variant="contained"
-                disabled={!dataSelecionada || !horarioSelecionado}
-                onClick={handleConfirmarAgendamento}
-                sx={{
-                  px: 4,
-                  py: 1.5,
-                  backgroundColor: "#1A56DB",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "15px",
-                  borderRadius: 2,
-                  "&:hover": {
-                    backgroundColor: "#1E40AF",
-                  },
-                  "&.Mui-disabled": {
-                    backgroundColor: "#E5E7EB",
-                    color: "#9CA3AF",
-                  },
-                }}
-              >
-                Confirmar Agendamento
-              </Button>
-            </Box>
+                          Ver Detalhes
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Box>
         </TabPanel>
 
-        {/* ==================== ABA NOTIFICAÇÕES ==================== */}
-        <TabPanel value={tabValue} index={2}>
+        {/* ==================== ABA 2: LISTA DE MEDICAMENTOS ==================== */}
+        <TabPanel value={tabValue} index={1}>
           <Box sx={{ px: 3, pb: 3 }}>
+            {/* Cabeçalho */}
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 700, color: "#111827", mb: 0.5 }}
+              >
+                Lista de Medicamentos
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: "#6B7280", fontSize: "14px" }}
+              >
+                Visualize os medicamentos cadastrados no sistema
+              </Typography>
+            </Box>
+
+            {/* Campo de Busca */}
+            <TextField
+              fullWidth
+              placeholder="Buscar medicamento..."
+              value={searchMedicamento}
+              onChange={(e) => setSearchMedicamento(e.target.value)}
+              sx={{ mb: 3 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: "#9CA3AF" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {/* Grid de Cards - 3 Colunas */}
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                mb: 3,
-                flexWrap: "wrap",
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(3, 1fr)",
+                },
                 gap: 2,
               }}
             >
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 700, color: "#111827", mb: 0.5 }}
-                >
-                  Notificações
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#6B7280", fontSize: "14px" }}
-                >
-                  Acompanhe suas notificações e lembretes
-                </Typography>
-              </Box>
-              {notificacoesNaoLidas > 0 && (
-                <Chip
-                  label={`${notificacoesNaoLidas} não lidas`}
-                  size="small"
+              {filteredMedicamentos.map((med) => (
+                <Card
+                  key={med.id}
+                  elevation={0}
                   sx={{
-                    backgroundColor: "#EFF6FF",
-                    color: "#1A56DB",
-                    fontWeight: 600,
-                    fontSize: "13px",
+                    border: "1px solid #E5E7EB",
                     borderRadius: 2,
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      borderColor: "#D1D5DB",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+                    },
                   }}
-                />
-              )}
-            </Box>
-
-            <Grid container spacing={2}>
-              {notificacoes.map((notif) => (
-                <Grid item xs={12} key={notif.id}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 2.5,
-                      border: "1px solid #E5E7EB",
-                      borderRadius: 3,
-                      backgroundColor: notif.naoLida ? "#FAFBFC" : "#FFFFFF",
-                      position: "relative",
-                      transition: "all 0.2s ease",
-                      "&:hover": {
-                        borderColor: "#D1D5DB",
-                      },
-                    }}
-                  >
-                    <Box sx={{ display: "flex", gap: 2 }}>
-                      {/* Ícone da Notificação */}
+                >
+                  <CardContent sx={{ p: 2.5, pb: 2 }}>
+                    {/* Ícone + Nome + Status */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 2,
+                        mb: 2,
+                      }}
+                    >
                       <Box
                         sx={{
-                          width: 44,
-                          height: 44,
+                          width: 48,
+                          height: 48,
                           borderRadius: 2,
-                          backgroundColor: notif.bgColor,
+                          backgroundColor: med.disponivel
+                            ? "#EFF6FF"
+                            : "#FEF2F2",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           flexShrink: 0,
-                          position: "relative",
                         }}
                       >
-                        <Box sx={{ color: notif.cor }}>{notif.icone}</Box>
-                        {notif.naoLida && (
-                          <CircleIcon
-                            sx={{
-                              position: "absolute",
-                              top: -4,
-                              right: -4,
-                              fontSize: 12,
-                              color: "#3B82F6",
-                            }}
-                          />
+                        <LinkOutlined
+                          sx={{
+                            color: med.disponivel ? "#1A56DB" : "#EF4444",
+                            fontSize: 24,
+                          }}
+                        />
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: "15px",
+                            color: "#111827",
+                            mb: 0.5,
+                          }}
+                        >
+                          {med.nome}
+                        </Typography>
+                        {getStatusChip(
+                          med.disponivel ? "Disponível" : "Indisponível",
                         )}
                       </Box>
-
-                      {/* Conteúdo */}
-                      <Box sx={{ flex: 1 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                          }}
-                        >
-                          <Box>
-                            <Typography
-                              sx={{
-                                fontWeight: 600,
-                                fontSize: "15px",
-                                color: "#111827",
-                                mb: 0.5,
-                              }}
-                            >
-                              {notif.titulo}
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "14px",
-                                color: "#6B7280",
-                                lineHeight: 1.5,
-                                mb: 1,
-                              }}
-                            >
-                              {notif.descricao}
-                            </Typography>
-                          </Box>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleRemoverNotificacao(notif.id)}
-                            sx={{
-                              color: "#9CA3AF",
-                              "&:hover": { color: "#6B7280" },
-                            }}
-                          >
-                            <CloseIcon sx={{ fontSize: 18 }} />
-                          </IconButton>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography
-                            sx={{ fontSize: "12px", color: "#9CA3AF" }}
-                          >
-                            {notif.data}
-                          </Typography>
-                          {notif.naoLida && (
-                            <Button
-                              size="small"
-                              onClick={() => handleMarcarComoLida(notif.id)}
-                              sx={{
-                                textTransform: "none",
-                                fontSize: "13px",
-                                color: "#1A56DB",
-                                fontWeight: 500,
-                                "&:hover": {
-                                  backgroundColor: "#EFF6FF",
-                                },
-                              }}
-                            >
-                              Marcar como lida
-                            </Button>
-                          )}
-                        </Box>
-                      </Box>
                     </Box>
-                  </Paper>
-                </Grid>
+                  </CardContent>
+                  <Divider />
+                  <CardActions sx={{ p: 2, justifyContent: "space-between" }}>
+                    <Button
+                      size="small"
+                      sx={{
+                        textTransform: "none",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        backgroundColor: "#EFF6FF",
+                        color: "#1A56DB",
+                        borderRadius: 2,
+                        px: 2,
+                        "&:hover": { backgroundColor: "#DBEAFE" },
+                      }}
+                    >
+                      Detalhes
+                    </Button>
+                    <Button
+                      size="small"
+                      onClick={() => handleToggleDisponibilidade(med.id)}
+                      sx={{
+                        textTransform: "none",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        backgroundColor: med.disponivel ? "#FEF2F2" : "#ECFDF5",
+                        color: med.disponivel ? "#EF4444" : "#10B981",
+                        borderRadius: 2,
+                        px: 2,
+                        "&:hover": {
+                          backgroundColor: med.disponivel
+                            ? "#FEE2E2"
+                            : "#D1FAE5",
+                        },
+                      }}
+                    >
+                      {med.disponivel
+                        ? "Marcar Indisponível"
+                        : "Marcar Disponível"}
+                    </Button>
+                  </CardActions>
+                </Card>
               ))}
-            </Grid>
-
-            {notificacoes.length === 0 && (
-              <Box sx={{ textAlign: "center", py: 8 }}>
-                <NotificationsIcon
-                  sx={{ fontSize: 48, color: "#D1D5DB", mb: 2 }}
-                />
-                <Typography sx={{ color: "#9CA3AF", fontSize: "16px" }}>
-                  Nenhuma notificação no momento
-                </Typography>
-              </Box>
-            )}
+            </Box>
           </Box>
         </TabPanel>
 
-        {/* ==================== ABA MINHAS INFORMAÇÕES ==================== */}
-        <TabPanel value={tabValue} index={3}>
+        {/* ==================== ABA 3: DISPONIBILIDADE ==================== */}
+        <TabPanel value={tabValue} index={2}>
           <Box sx={{ px: 3, pb: 3 }}>
+            {/* Cabeçalho */}
             <Box sx={{ mb: 3 }}>
               <Typography
                 variant="h6"
                 sx={{ fontWeight: 700, color: "#111827", mb: 0.5 }}
               >
-                Minhas Informações
+                Gestão de Disponibilidade
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ color: "#6B7280", fontSize: "14px" }}
               >
-                Confira seus dados pessoais e de contato
+                Defina os dias disponíveis para agendamento de cada medicamento
               </Typography>
             </Box>
 
-            <Grid container spacing={2.5}>
-              {/* Card 1 - Dados Pessoais */}
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2.5,
-                    border: "1px solid #E5E7EB",
-                    borderRadius: 3,
-                    height: "100%",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
-                      mb: 2.5,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 2,
-                        backgroundColor: "#EFF6FF",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <PersonIcon sx={{ color: "#1A56DB", fontSize: 20 }} />
-                    </Box>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: "16px",
-                        color: "#111827",
-                      }}
-                    >
-                      Dados Pessoais
-                    </Typography>
-                  </Box>
-
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                      >
-                        Nome Completo
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: "15px",
-                          color: "#111827",
-                        }}
-                      >
-                        João Silva
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                      >
-                        CPF
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: "15px",
-                          color: "#111827",
-                        }}
-                      >
-                        123.456.789-00
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                      >
-                        Data de Nascimento
-                      </Typography>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <CalendarIcon sx={{ fontSize: 18, color: "#6B7280" }} />
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: "15px",
-                            color: "#111827",
-                          }}
-                        >
-                          14/03/1985
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              {/* Card 2 - Contato */}
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2.5,
-                    border: "1px solid #E5E7EB",
-                    borderRadius: 3,
-                    height: "100%",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
-                      mb: 2.5,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 2,
-                        backgroundColor: "#EFF6FF",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <PhoneIcon sx={{ color: "#1A56DB", fontSize: 20 }} />
-                    </Box>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: "16px",
-                        color: "#111827",
-                      }}
-                    >
-                      Contato
-                    </Typography>
-                  </Box>
-
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                      >
-                        E-mail
-                      </Typography>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <EmailIcon sx={{ fontSize: 18, color: "#6B7280" }} />
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: "15px",
-                            color: "#111827",
-                          }}
-                        >
-                          joao.silva@email.com
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                      >
-                        Telefone
-                      </Typography>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <PhoneIcon sx={{ fontSize: 18, color: "#6B7280" }} />
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: "15px",
-                            color: "#111827",
-                          }}
-                        >
-                          (11) 98765-4321
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Divider />
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                      >
-                        Responsável
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: "15px",
-                          color: "#111827",
-                        }}
-                      >
-                        Maria Silva
-                      </Typography>
-                      <Typography
-                        sx={{ fontSize: "13px", color: "#6B7280", mt: 0.5 }}
-                      >
-                        CPF: 987.654.321-00
-                      </Typography>
-                      <Typography sx={{ fontSize: "13px", color: "#6B7280" }}>
-                        Tel: (11) 91234-5678
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              {/* Card 3 - Endereço */}
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2.5,
-                    border: "1px solid #E5E7EB",
-                    borderRadius: 3,
-                    height: "100%",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
-                      mb: 2.5,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 2,
-                        backgroundColor: "#EFF6FF",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <LocationOnIcon sx={{ color: "#1A56DB", fontSize: 20 }} />
-                    </Box>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: "16px",
-                        color: "#111827",
-                      }}
-                    >
-                      Endereço
-                    </Typography>
-                  </Box>
-
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                      >
-                        Logradouro
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: "15px",
-                          color: "#111827",
-                        }}
-                      >
-                        Rua das Flores, 123
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: "flex", gap: 3 }}>
-                      <Box>
-                        <Typography
-                          sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                        >
-                          Bairro
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: "15px",
-                            color: "#111827",
-                          }}
-                        >
-                          Centro
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                        >
-                          CEP
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: "15px",
-                            color: "#111827",
-                          }}
-                        >
-                          07800-000
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box sx={{ display: "flex", gap: 3 }}>
-                      <Box>
-                        <Typography
-                          sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                        >
-                          Cidade
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: "15px",
-                            color: "#111827",
-                          }}
-                        >
-                          Franco da Rocha
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                        >
-                          Estado
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: "15px",
-                            color: "#111827",
-                          }}
-                        >
-                          SP
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              {/* Card 4 - Farmácia Judicial */}
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2.5,
-                    border: "1px solid #E5E7EB",
-                    borderRadius: 3,
-                    height: "100%",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
-                      mb: 2.5,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 2,
-                        backgroundColor: "#EFF6FF",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <LocationOnIcon sx={{ color: "#1A56DB", fontSize: 20 }} />
-                    </Box>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: "16px",
-                        color: "#111827",
-                      }}
-                    >
-                      Farmácia Judicial
-                    </Typography>
-                  </Box>
-
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                      >
-                        Endereço da Unidade
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: "15px",
-                          color: "#111827",
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        Rua Prudente de Moraes, 255 - Centro, Franco da Rocha -
-                        SP, 07850-000
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
-                      >
-                        Horários de Atendimento
-                      </Typography>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <AccessTimeIcon
-                          sx={{ fontSize: 18, color: "#6B7280" }}
-                        />
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: "15px",
-                            color: "#111827",
-                          }}
-                        >
-                          Segunda a Sexta: 8h00 às 17h00
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Paper>
-              </Grid>
-            </Grid>
-
-            {/* Banner Informativo */}
+            {/* Paper Principal */}
             <Paper
               elevation={0}
-              sx={{
-                mt: 3,
-                p: 2.5,
-                backgroundColor: "#EFF6FF",
-                border: "1px solid #BFDBFE",
-                borderRadius: 3,
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-              }}
+              sx={{ p: 3, border: "1px solid #E5E7EB", borderRadius: 2 }}
             >
-              <InfoIcon sx={{ color: "#1A56DB", fontSize: 22 }} />
-              <Typography
-                sx={{ color: "#1E40AF", fontSize: "14px", fontWeight: 500 }}
+              {/* Select de Medicamento */}
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  sx={{
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    color: "#111827",
+                    mb: 1,
+                  }}
+                >
+                  Selecione o Medicamento
+                </Typography>
+                <FormControl fullWidth>
+                  <Select
+                    value={medicamentoSelecionado}
+                    onChange={(e) => setMedicamentoSelecionado(e.target.value)}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    {MEDICAMENTOS_INICIAIS.map((med) => (
+                      <MenuItem key={med.id} value={med.nome}>
+                        {med.nome}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+
+              {/* Seção de Dias */}
+              <Box sx={{ mb: 3 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+                >
+                  <CalendarTodayOutlined
+                    sx={{ color: "#1A56DB", fontSize: 20 }}
+                  />
+                  <Typography
+                    sx={{ fontWeight: 600, fontSize: "15px", color: "#111827" }}
+                  >
+                    Dias Disponíveis para Agendamento
+                  </Typography>
+                </Box>
+
+                {/* Grid de Dias - 2 Colunas */}
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: {
+                      xs: "1fr",
+                      sm: "repeat(2, 1fr)",
+                    },
+                    gap: 1.5,
+                  }}
+                >
+                  {DIAS_SEMANA.map((dia) => {
+                    const isSelected = diasSelecionados.includes(dia);
+                    return (
+                      <Paper
+                        key={dia}
+                        elevation={0}
+                        onClick={() => handleToggleDia(dia)}
+                        sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          border: isSelected
+                            ? "2px solid #1A56DB"
+                            : "1px solid #E5E7EB",
+                          backgroundColor: isSelected ? "#EFF6FF" : "#FFFFFF",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          "&:hover": {
+                            borderColor: "#1A56DB",
+                            backgroundColor: isSelected ? "#EFF6FF" : "#F9FAFB",
+                          },
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: "14px",
+                            color: isSelected ? "#1A56DB" : "#111827",
+                          }}
+                        >
+                          {dia}
+                        </Typography>
+                        {isSelected && (
+                          <CheckCircleOutline
+                            sx={{ color: "#1A56DB", fontSize: 20 }}
+                          />
+                        )}
+                      </Paper>
+                    );
+                  })}
+                </Box>
+              </Box>
+
+              {/* Banner Azul de Rodapé */}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2.5,
+                  backgroundColor: "#EFF6FF",
+                  border: "1px solid #BFDBFE",
+                  borderRadius: 2,
+                  mb: 3,
+                }}
               >
-                Para atualizar suas informações, entre em contato com a
-                Secretaria de Saúde.
-              </Typography>
+                <Typography
+                  sx={{ color: "#1E40AF", fontSize: "14px", fontWeight: 500 }}
+                >
+                  Os pacientes só poderão agendar retiradas nos dias
+                  selecionados para este medicamento.
+                </Typography>
+              </Paper>
+
+              {/* Botão Salvar */}
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  variant="contained"
+                  startIcon={<SaveOutlined />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    px: 4,
+                    py: 1.5,
+                    backgroundColor: "#1A56DB",
+                    "&:hover": { backgroundColor: "#1E40AF" },
+                  }}
+                >
+                  Salvar Disponibilidade
+                </Button>
+              </Box>
             </Paper>
+          </Box>
+        </TabPanel>
+
+        {/* ==================== ABA 4: AGENDAMENTOS ==================== */}
+        <TabPanel value={tabValue} index={3}>
+          <Box sx={{ px: 3, pb: 3 }}>
+            {/* Cabeçalho */}
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 700, color: "#111827", mb: 0.5 }}
+              >
+                Agendamentos
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: "#6B7280", fontSize: "14px" }}
+              >
+                Visualize e gerencie os agendamentos de retirada
+              </Typography>
+            </Box>
+
+            {/* Lista de Cards - 100% largura */}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {agendamentos.map((agendamento) => (
+                <Card
+                  key={agendamento.id}
+                  elevation={0}
+                  sx={{
+                    width: "100%",
+                    border: "1px solid #E5E7EB",
+                    borderRadius: 2,
+                    transition: "all 0.2s ease",
+                    "&:hover": { borderColor: "#D1D5DB" },
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: 2,
+                      }}
+                    >
+                      {/* Informações do Paciente */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 3,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <Box>
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: "15px",
+                              color: "#111827",
+                              mb: 0.5,
+                            }}
+                          >
+                            {agendamento.nome}
+                          </Typography>
+                          {getStatusChip(agendamento.status)}
+                        </Box>
+                        <Divider orientation="vertical" flexItem />
+                        <Box>
+                          <Typography
+                            sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
+                          >
+                            Medicamento
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: "14px",
+                              color: "#111827",
+                            }}
+                          >
+                            {agendamento.medicamento}
+                          </Typography>
+                        </Box>
+                        <Divider orientation="vertical" flexItem />
+                        <Box>
+                          <Typography
+                            sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
+                          >
+                            Data e Horário
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: "14px",
+                              color: "#111827",
+                            }}
+                          >
+                            {agendamento.data} às {agendamento.horario}
+                          </Typography>
+                        </Box>
+                        <Divider orientation="vertical" flexItem />
+                        <Box>
+                          <Typography
+                            sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.5 }}
+                          >
+                            Quantidade
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: "14px",
+                              color: "#111827",
+                            }}
+                          >
+                            {agendamento.quantidade}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Botões de Ação */}
+                      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                        {agendamento.status === "Pendente" && (
+                          <Button
+                            size="small"
+                            onClick={() =>
+                              handleConfirmarAgendamento(agendamento.id)
+                            }
+                            sx={{
+                              textTransform: "none",
+                              fontSize: "12px",
+                              fontWeight: 600,
+                              backgroundColor: "#ECFDF5",
+                              color: "#059669",
+                              borderRadius: "20px",
+                              px: 2,
+                              "&:hover": { backgroundColor: "#D1FAE5" },
+                            }}
+                          >
+                            Confirmar
+                          </Button>
+                        )}
+                        <Button
+                          size="small"
+                          sx={{
+                            textTransform: "none",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            backgroundColor: "#EFF6FF",
+                            color: "#1A56DB",
+                            borderRadius: "20px",
+                            px: 2,
+                            "&:hover": { backgroundColor: "#DBEAFE" },
+                          }}
+                        >
+                          Presença
+                        </Button>
+                        <Button
+                          size="small"
+                          sx={{
+                            textTransform: "none",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            backgroundColor: "#FEF2F2",
+                            color: "#EF4444",
+                            borderRadius: "20px",
+                            px: 2,
+                            "&:hover": { backgroundColor: "#FEE2E2" },
+                          }}
+                        >
+                          Falta
+                        </Button>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
           </Box>
         </TabPanel>
       </Paper>
@@ -1488,4 +928,4 @@ const PacienteDashboard = () => {
   );
 };
 
-export default PacienteDashboard;
+export default FarmaciaDashboard;
