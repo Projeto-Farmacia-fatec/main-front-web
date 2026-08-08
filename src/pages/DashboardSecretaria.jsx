@@ -16,9 +16,10 @@ import {
   TableHead,
   TableRow,
   InputAdornment,
-  Card,
-  CardContent,
-  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   PersonAddOutlined,
@@ -31,7 +32,6 @@ import {
   Download as DownloadIcon,
   DescriptionOutlined as DocumentIcon,
   CalendarTodayOutlined as CalendarIcon,
-  PersonOutlineOutlined,
 } from "@mui/icons-material";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 
@@ -204,6 +204,26 @@ const SecretariaDashboard = () => {
   const [tratamentos, setTratamentos] = useState(TRATAMENTOS_MOCK);
   const [tipoRelatorio, setTipoRelatorio] = useState("semanal");
 
+  // --- Modais Aba 4 (Gerenciar Usuários) ---
+  const [modalEditOpen, setModalEditOpen] = useState(false);
+  const [usuarioEditando, setUsuarioEditando] = useState(null);
+  const [editNome, setEditNome] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+
+  const [modalConfirmInativarUserOpen, setModalConfirmInativarUserOpen] =
+    useState(false);
+  const [usuarioParaInativar, setUsuarioParaInativar] = useState(null);
+
+  // --- Modais Aba 5 (Controle de Tratamento) ---
+  const [modalConfirmTratamentoOpen, setModalConfirmTratamentoOpen] =
+    useState(false);
+  const [tratamentoParaAlterar, setTratamentoParaAlterar] = useState(null);
+
+  // --- Modais Aba 6 (Relatórios) ---
+  const [modalDownloadRelatorioOpen, setModalDownloadRelatorioOpen] =
+    useState(false);
+  const [relatorioParaDownload, setRelatorioParaDownload] = useState(null);
+
   const handleTabChange = (event, newValue) => setTabValue(newValue);
 
   const handlePacienteFormChange = (field) => (event) =>
@@ -212,24 +232,94 @@ const SecretariaDashboard = () => {
   const handleFuncionarioFormChange = (field) => (event) =>
     setFuncionarioForm({ ...funcionarioForm, [field]: event.target.value });
 
-  const handleToggleStatus = (id) => {
-    setTratamentos(
-      tratamentos.map((t) =>
-        t.id === id
-          ? { ...t, status: t.status === "Ativo" ? "Inativo" : "Ativo" }
-          : t,
-      ),
-    );
+  // Handlers para Editar Usuário (Aba 4)
+  const handleOpenModalEdit = (usuario) => {
+    setUsuarioEditando(usuario);
+    setEditNome(usuario.nome);
+    setEditEmail(usuario.email);
+    setModalEditOpen(true);
   };
 
-  const handleInativarUsuario = (id) => {
-    setUsuarios(
-      usuarios.map((u) =>
-        u.id === id
-          ? { ...u, status: u.status === "Ativo" ? "Inativo" : "Ativo" }
-          : u,
-      ),
-    );
+  const handleCloseModalEdit = () => {
+    setModalEditOpen(false);
+    setUsuarioEditando(null);
+  };
+
+  const handleSalvarEdicao = () => {
+    if (usuarioEditando) {
+      setUsuarios(
+        usuarios.map((u) =>
+          u.id === usuarioEditando.id
+            ? { ...u, nome: editNome, email: editEmail }
+            : u,
+        ),
+      );
+    }
+    handleCloseModalEdit();
+  };
+
+  // Handlers para Inativar/Ativar Usuário (Aba 4)
+  const handleOpenConfirmInativarUser = (usuario) => {
+    setUsuarioParaInativar(usuario);
+    setModalConfirmInativarUserOpen(true);
+  };
+
+  const handleCloseConfirmInativarUser = () => {
+    setModalConfirmInativarUserOpen(false);
+    setUsuarioParaInativar(null);
+  };
+
+  const handleConfirmarInativacaoUser = () => {
+    if (usuarioParaInativar) {
+      setUsuarios(
+        usuarios.map((u) =>
+          u.id === usuarioParaInativar.id
+            ? { ...u, status: u.status === "Ativo" ? "Inativo" : "Ativo" }
+            : u,
+        ),
+      );
+    }
+    handleCloseConfirmInativarUser();
+  };
+
+  // Handlers para Inativar/Ativar Tratamento (Aba 5)
+  const handleOpenConfirmTratamento = (tratamento) => {
+    setTratamentoParaAlterar(tratamento);
+    setModalConfirmTratamentoOpen(true);
+  };
+
+  const handleCloseConfirmTratamento = () => {
+    setModalConfirmTratamentoOpen(false);
+    setTratamentoParaAlterar(null);
+  };
+
+  const handleConfirmarAlteracaoTratamento = () => {
+    if (tratamentoParaAlterar) {
+      setTratamentos(
+        tratamentos.map((t) =>
+          t.id === tratamentoParaAlterar.id
+            ? { ...t, status: t.status === "Ativo" ? "Inativo" : "Ativo" }
+            : t,
+        ),
+      );
+    }
+    handleCloseConfirmTratamento();
+  };
+
+  // Handlers para Download de Relatório (Aba 6)
+  const handleOpenDownloadRelatorio = (relatorio) => {
+    setRelatorioParaDownload(relatorio);
+    setModalDownloadRelatorioOpen(true);
+  };
+
+  const handleCloseDownloadRelatorio = () => {
+    setModalDownloadRelatorioOpen(false);
+    setRelatorioParaDownload(null);
+  };
+
+  const handleConfirmarDownloadRelatorio = () => {
+    // Simulação do download
+    handleCloseDownloadRelatorio();
   };
 
   const filteredUsuarios = usuarios.filter(
@@ -335,7 +425,6 @@ const SecretariaDashboard = () => {
               </Typography>
             </Box>
 
-            {/* Estilo base para os inputs sem label nativa */}
             {(() => {
               const fieldStyle = {
                 backgroundColor: "#FFFFFF",
@@ -793,7 +882,6 @@ const SecretariaDashboard = () => {
 
               return (
                 <>
-                  {/* Bloco 1: Dados do Funcionário */}
                   <Paper
                     elevation={0}
                     sx={{
@@ -822,7 +910,6 @@ const SecretariaDashboard = () => {
                         rowGap: 2.5,
                       }}
                     >
-                      {/* Nome Completo Ocupando 100% da primeira linha */}
                       <Box sx={{ gridColumn: { xs: "span 1", md: "span 2" } }}>
                         <Typography sx={labelStyle}>Nome Completo *</Typography>
                         <TextField
@@ -834,7 +921,6 @@ const SecretariaDashboard = () => {
                         />
                       </Box>
 
-                      {/* CPF e Tipo de Acesso Lado a Lado na segunda linha */}
                       <Box>
                         <Typography sx={labelStyle}>CPF *</Typography>
                         <TextField
@@ -872,7 +958,6 @@ const SecretariaDashboard = () => {
                     </Box>
                   </Paper>
 
-                  {/* Bloco 2: Credenciais de Acesso */}
                   <Paper
                     elevation={0}
                     sx={{
@@ -923,7 +1008,6 @@ const SecretariaDashboard = () => {
               );
             })()}
 
-            {/* Botões de Ação */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
               <Button
                 variant="outlined"
@@ -934,10 +1018,6 @@ const SecretariaDashboard = () => {
                   px: 3,
                   borderColor: "#D1D5DB",
                   color: "#6B7280",
-                  "&:hover": {
-                    borderColor: "#9CA3AF",
-                    backgroundColor: "#F9FAFB",
-                  },
                 }}
               >
                 Cancelar
@@ -951,7 +1031,6 @@ const SecretariaDashboard = () => {
                   borderRadius: 2,
                   px: 3,
                   backgroundColor: "#1A56DB",
-                  "&:hover": { backgroundColor: "#1E40AF" },
                 }}
               >
                 Cadastrar Funcionário
@@ -1037,7 +1116,6 @@ const SecretariaDashboard = () => {
               );
             })()}
 
-            {/* Botões de Ação */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
               <Button
                 variant="outlined"
@@ -1048,10 +1126,6 @@ const SecretariaDashboard = () => {
                   px: 3,
                   borderColor: "#D1D5DB",
                   color: "#6B7280",
-                  "&:hover": {
-                    borderColor: "#9CA3AF",
-                    backgroundColor: "#F9FAFB",
-                  },
                 }}
               >
                 Cancelar
@@ -1065,7 +1139,6 @@ const SecretariaDashboard = () => {
                   borderRadius: 2,
                   px: 3,
                   backgroundColor: "#1A56DB",
-                  "&:hover": { backgroundColor: "#1E40AF" },
                 }}
               >
                 Cadastrar Medicamento
@@ -1092,7 +1165,6 @@ const SecretariaDashboard = () => {
               </Typography>
             </Box>
 
-            {/* Campo de Busca estilizado igual ao Figma */}
             <TextField
               fullWidth
               size="small"
@@ -1119,7 +1191,6 @@ const SecretariaDashboard = () => {
               }}
             />
 
-            {/* Tabela de Usuários */}
             <TableContainer
               component={Paper}
               elevation={0}
@@ -1133,7 +1204,6 @@ const SecretariaDashboard = () => {
                         fontWeight: 600,
                         color: "#6B7280",
                         fontSize: "12px",
-                        letterSpacing: "0.05em",
                       }}
                     >
                       NOME
@@ -1143,7 +1213,6 @@ const SecretariaDashboard = () => {
                         fontWeight: 600,
                         color: "#6B7280",
                         fontSize: "12px",
-                        letterSpacing: "0.05em",
                       }}
                     >
                       CPF
@@ -1153,7 +1222,6 @@ const SecretariaDashboard = () => {
                         fontWeight: 600,
                         color: "#6B7280",
                         fontSize: "12px",
-                        letterSpacing: "0.05em",
                       }}
                     >
                       TIPO
@@ -1163,7 +1231,6 @@ const SecretariaDashboard = () => {
                         fontWeight: 600,
                         color: "#6B7280",
                         fontSize: "12px",
-                        letterSpacing: "0.05em",
                       }}
                     >
                       E-MAIL
@@ -1173,7 +1240,6 @@ const SecretariaDashboard = () => {
                         fontWeight: 600,
                         color: "#6B7280",
                         fontSize: "12px",
-                        letterSpacing: "0.05em",
                       }}
                     >
                       STATUS
@@ -1183,7 +1249,6 @@ const SecretariaDashboard = () => {
                         fontWeight: 600,
                         color: "#6B7280",
                         fontSize: "12px",
-                        letterSpacing: "0.05em",
                       }}
                     >
                       AÇÕES
@@ -1197,7 +1262,6 @@ const SecretariaDashboard = () => {
                       hover
                       sx={{ borderBottom: "1px solid #F3F4F6" }}
                     >
-                      {/* Nome com Ícone de Usuário */}
                       <TableCell>
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -1229,7 +1293,6 @@ const SecretariaDashboard = () => {
                         {usuario.email}
                       </TableCell>
 
-                      {/* Status com Chip Verde/Vermelho e Ícone de Pulso */}
                       <TableCell>
                         <Chip
                           label={usuario.status}
@@ -1264,18 +1327,13 @@ const SecretariaDashboard = () => {
                         />
                       </TableCell>
 
-                      {/* Botões de Ação */}
                       <TableCell>
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
                           <Button
                             size="small"
-                            startIcon={
-                              <ShowChartOutlined
-                                sx={{ fontSize: "14px !important" }}
-                              />
-                            }
+                            onClick={() => handleOpenModalEdit(usuario)}
                             sx={{
                               textTransform: "none",
                               fontSize: "12px",
@@ -1290,7 +1348,9 @@ const SecretariaDashboard = () => {
 
                           <Button
                             size="small"
-                            onClick={() => handleInativarUsuario(usuario.id)}
+                            onClick={() =>
+                              handleOpenConfirmInativarUser(usuario)
+                            }
                             sx={{
                               textTransform: "none",
                               fontSize: "12px",
@@ -1344,7 +1404,6 @@ const SecretariaDashboard = () => {
               </Typography>
             </Box>
 
-            {/* Filtros em linha no topo */}
             <Box
               sx={{
                 display: "grid",
@@ -1365,8 +1424,6 @@ const SecretariaDashboard = () => {
                     borderRadius: "8px",
                     backgroundColor: "#FFFFFF",
                     "& fieldset": { borderColor: "#E5E7EB" },
-                    "&:hover fieldset": { borderColor: "#D1D5DB" },
-                    "&.Mui-focused fieldset": { borderColor: "#1A56DB" },
                   },
                 }}
                 InputProps={{
@@ -1386,13 +1443,7 @@ const SecretariaDashboard = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 sx={{
                   backgroundColor: "#FFFFFF",
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "8px",
-                    backgroundColor: "#FFFFFF",
-                    "& fieldset": { borderColor: "#E5E7EB" },
-                    "&:hover fieldset": { borderColor: "#D1D5DB" },
-                    "&.Mui-focused fieldset": { borderColor: "#1A56DB" },
-                  },
+                  "& .MuiOutlinedInput-root": { borderRadius: "8px" },
                 }}
               >
                 {STATUS_FILTRO.map((status) => (
@@ -1407,20 +1458,16 @@ const SecretariaDashboard = () => {
               </TextField>
             </Box>
 
-            {/* Lista de Cards de Tratamento */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {filteredTratamentos.map((tratamento) => (
                 <Paper
                   key={tratamento.id}
                   elevation={0}
                   sx={{
-                    width: "100%",
                     p: 2.5,
                     border: "1px solid #E5E7EB",
                     borderRadius: 3,
                     backgroundColor: "#FFFFFF",
-                    transition: "all 0.2s ease",
-                    "&:hover": { borderColor: "#D1D5DB" },
                   }}
                 >
                   <Box
@@ -1432,7 +1479,6 @@ const SecretariaDashboard = () => {
                       gap: 2,
                     }}
                   >
-                    {/* Lado Esquerdo: Paciente e Medicamento */}
                     <Box
                       sx={{
                         display: "flex",
@@ -1453,24 +1499,9 @@ const SecretariaDashboard = () => {
                         >
                           {tratamento.paciente}
                         </Typography>
-
                         <Chip
                           label={tratamento.status}
                           size="small"
-                          icon={
-                            <Box
-                              sx={{
-                                width: 6,
-                                height: 6,
-                                borderRadius: "50%",
-                                backgroundColor:
-                                  tratamento.status === "Ativo"
-                                    ? "#10B981"
-                                    : "#EF4444",
-                                ml: 1,
-                              }}
-                            />
-                          }
                           sx={{
                             backgroundColor:
                               tratamento.status === "Ativo"
@@ -1483,15 +1514,11 @@ const SecretariaDashboard = () => {
                             fontWeight: 600,
                             fontSize: "12px",
                             borderRadius: "16px",
-                            height: 22,
                           }}
                         />
                       </Box>
-
                       <Box>
-                        <Typography
-                          sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.2 }}
-                        >
+                        <Typography sx={{ fontSize: "12px", color: "#9CA3AF" }}>
                           Medicamento
                         </Typography>
                         <Typography
@@ -1506,11 +1533,8 @@ const SecretariaDashboard = () => {
                       </Box>
                     </Box>
 
-                    {/* Centro: Início do Tratamento */}
                     <Box sx={{ minWidth: 180 }}>
-                      <Typography
-                        sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.2 }}
-                      >
+                      <Typography sx={{ fontSize: "12px", color: "#9CA3AF" }}>
                         Início do Tratamento
                       </Typography>
                       <Box
@@ -1529,28 +1553,24 @@ const SecretariaDashboard = () => {
                       </Box>
                     </Box>
 
-                    {/* Extrema Direita: Botão Pílula "Inativar" / "Ativar" */}
                     <Button
                       size="small"
-                      onClick={() => handleToggleStatus(tratamento.id)}
+                      onClick={() => handleOpenConfirmTratamento(tratamento)}
                       sx={{
                         textTransform: "none",
                         fontWeight: 600,
                         fontSize: "13px",
                         borderRadius: "12px",
                         px: 2.5,
-                        py: 0.6,
                         backgroundColor:
                           tratamento.status === "Ativo" ? "#FEF2F2" : "#ECFDF5",
                         color:
                           tratamento.status === "Ativo" ? "#EF4444" : "#10B981",
-                        boxShadow: "none",
                         "&:hover": {
                           backgroundColor:
                             tratamento.status === "Ativo"
                               ? "#FEE2E2"
                               : "#D1FAE5",
-                          boxShadow: "none",
                         },
                       }}
                     >
@@ -1582,7 +1602,6 @@ const SecretariaDashboard = () => {
               </Typography>
             </Box>
 
-            {/* Paper Envolvedor Principal */}
             <Paper
               elevation={0}
               sx={{
@@ -1592,7 +1611,6 @@ const SecretariaDashboard = () => {
                 backgroundColor: "#FFFFFF",
               }}
             >
-              {/* Seletor de Tipo de Relatório */}
               <Box sx={{ mb: 3 }}>
                 <Typography
                   sx={{
@@ -1604,7 +1622,6 @@ const SecretariaDashboard = () => {
                 >
                   Tipo de Relatório
                 </Typography>
-
                 <Box sx={{ display: "flex", gap: 1.5 }}>
                   {["semanal", "mensal", "anual"].map((tipo) => {
                     const isSelected = tipoRelatorio === tipo;
@@ -1613,7 +1630,6 @@ const SecretariaDashboard = () => {
                       mensal: "Mensal",
                       anual: "Anual",
                     };
-
                     return (
                       <Button
                         key={tipo}
@@ -1624,18 +1640,11 @@ const SecretariaDashboard = () => {
                           fontSize: "14px",
                           borderRadius: "10px",
                           px: 3,
-                          py: 0.8,
                           backgroundColor: isSelected ? "#EFF6FF" : "#FFFFFF",
                           borderColor: isSelected ? "#1A56DB" : "#E5E7EB",
                           borderWidth: "1px",
                           borderStyle: "solid",
                           color: isSelected ? "#1A56DB" : "#374151",
-                          boxShadow: "none",
-                          "&:hover": {
-                            backgroundColor: isSelected ? "#DBEAFE" : "#F9FAFB",
-                            borderColor: isSelected ? "#1A56DB" : "#D1D5DB",
-                            boxShadow: "none",
-                          },
                         }}
                       >
                         {labels[tipo]}
@@ -1645,7 +1654,6 @@ const SecretariaDashboard = () => {
                 </Box>
               </Box>
 
-              {/* Lista de Cards de Relatório */}
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 {relatorios.map((relatorio) => (
                   <Paper
@@ -1655,9 +1663,6 @@ const SecretariaDashboard = () => {
                       p: 2.5,
                       border: "1px solid #E5E7EB",
                       borderRadius: 3,
-                      backgroundColor: "#FFFFFF",
-                      transition: "all 0.2s ease",
-                      "&:hover": { borderColor: "#D1D5DB" },
                     }}
                   >
                     <Box
@@ -1669,7 +1674,6 @@ const SecretariaDashboard = () => {
                         gap: 2,
                       }}
                     >
-                      {/* Lado Esquerdo: Ícone + Título e Data */}
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 2 }}
                       >
@@ -1682,56 +1686,35 @@ const SecretariaDashboard = () => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            flexShrink: 0,
                           }}
                         >
                           <DocumentIcon
                             sx={{ color: "#1A56DB", fontSize: 22 }}
                           />
                         </Box>
-
                         <Box>
                           <Typography
                             sx={{
                               fontWeight: 700,
                               fontSize: "15px",
                               color: "#111827",
-                              mb: 0.3,
                             }}
                           >
                             {relatorio.titulo}
                           </Typography>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 0.6,
-                            }}
+                          <Typography
+                            sx={{ fontSize: "13px", color: "#9CA3AF" }}
                           >
-                            <CalendarIcon
-                              sx={{ fontSize: 14, color: "#9CA3AF" }}
-                            />
-                            <Typography
-                              sx={{ fontSize: "13px", color: "#9CA3AF" }}
-                            >
-                              {relatorio.data}
-                            </Typography>
-                          </Box>
+                            {relatorio.data}
+                          </Typography>
                         </Box>
                       </Box>
-
-                      {/* Lado Direito: Métricas + Botão Download */}
                       <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: { xs: 3, md: 5 },
-                          flexWrap: "wrap",
-                        }}
+                        sx={{ display: "flex", alignItems: "center", gap: 4 }}
                       >
                         <Box>
                           <Typography
-                            sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.2 }}
+                            sx={{ fontSize: "12px", color: "#9CA3AF" }}
                           >
                             Retiradas
                           </Typography>
@@ -1745,10 +1728,9 @@ const SecretariaDashboard = () => {
                             {relatorio.retiradas}
                           </Typography>
                         </Box>
-
                         <Box>
                           <Typography
-                            sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.2 }}
+                            sx={{ fontSize: "12px", color: "#9CA3AF" }}
                           >
                             Novos Pacientes
                           </Typography>
@@ -1762,23 +1744,18 @@ const SecretariaDashboard = () => {
                             {relatorio.novosPacientes}
                           </Typography>
                         </Box>
-
                         <Button
                           size="small"
-                          startIcon={
-                            <DownloadIcon
-                              sx={{ fontSize: "18px !important" }}
-                            />
-                          }
+                          onClick={() => handleOpenDownloadRelatorio(relatorio)}
+                          startIcon={<DownloadIcon />}
                           sx={{
                             textTransform: "none",
                             fontWeight: 600,
-                            fontSize: "13px",
+                            backgroundColor: "#EFF6FF",
+                            color: "#1A56DB",
                             borderRadius: "10px",
                             px: 2.5,
                             py: 1,
-                            backgroundColor: "#EFF6FF",
-                            color: "#1A56DB",
                             boxShadow: "none",
                             "&:hover": {
                               backgroundColor: "#DBEAFE",
@@ -1797,6 +1774,410 @@ const SecretariaDashboard = () => {
           </Box>
         </TabPanel>
       </Paper>
+
+      {/* ==================== MODAL 1: EDITAR USUÁRIO ==================== */}
+      <Dialog
+        open={modalEditOpen}
+        onClose={handleCloseModalEdit}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Editar Usuário
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1.5 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  color: "#374151",
+                  mb: 0.5,
+                }}
+              >
+                Nome
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                value={editNome}
+                onChange={(e) => setEditNome(e.target.value)}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                    backgroundColor: "#FFFFFF",
+                    "& fieldset": { borderColor: "#EF4444" },
+                    "&:hover fieldset": { borderColor: "#EF4444" },
+                    "&.Mui-focused fieldset": { borderColor: "#EF4444" },
+                  },
+                }}
+              />
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  color: "#374151",
+                  mb: 0.5,
+                }}
+              >
+                E-mail
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                    backgroundColor: "#FFFFFF",
+                    "& fieldset": { borderColor: "#E5E7EB" },
+                    "&:hover fieldset": { borderColor: "#D1D5DB" },
+                    "&.Mui-focused fieldset": { borderColor: "#1A56DB" },
+                  },
+                }}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+
+        <DialogActions
+          sx={{ p: 2.5, pt: 1, justifyContent: "flex-end", gap: 1 }}
+        >
+          <Button
+            onClick={handleCloseModalEdit}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#FFFFFF",
+              color: "#374151",
+              border: "1px solid #E5E7EB",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#F9FAFB",
+                borderColor: "#D1D5DB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleSalvarEdicao}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 3,
+              py: 0.6,
+              backgroundColor: "#1A56DB",
+              color: "#FFFFFF",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#1E40AF",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ==================== MODAL 2: CONFIRMAR INATIVAÇÃO/ATIVAÇÃO DE USUÁRIO (ABA 4) ==================== */}
+      <Dialog
+        open={modalConfirmInativarUserOpen}
+        onClose={handleCloseConfirmInativarUser}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Confirmar Alteração
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1 }}>
+          {usuarioParaInativar && (
+            <Typography
+              sx={{ fontSize: "14px", color: "#4B5563", lineHeight: 1.5 }}
+            >
+              Tem certeza que deseja{" "}
+              <strong>
+                {usuarioParaInativar.status === "Ativo" ? "Inativar" : "Ativar"}
+              </strong>{" "}
+              o usuário <strong>{usuarioParaInativar.nome}</strong>?
+            </Typography>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, pt: 1, justifyContent: "flex-end", gap: 1 }}>
+          <Button
+            onClick={handleCloseConfirmInativarUser}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#FFFFFF",
+              color: "#374151",
+              border: "1px solid #E5E7EB",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#F9FAFB",
+                borderColor: "#D1D5DB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleConfirmarInativacaoUser}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor:
+                usuarioParaInativar?.status === "Ativo" ? "#EF4444" : "#10B981",
+              color: "#FFFFFF",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor:
+                  usuarioParaInativar?.status === "Ativo"
+                    ? "#DC2626"
+                    : "#059669",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ==================== MODAL 3: CONFIRMAR INATIVAÇÃO/ATIVAÇÃO DE TRATAMENTO (ABA 5) ==================== */}
+      <Dialog
+        open={modalConfirmTratamentoOpen}
+        onClose={handleCloseConfirmTratamento}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Confirmar Alteração de Tratamento
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1 }}>
+          {tratamentoParaAlterar && (
+            <Typography
+              sx={{ fontSize: "14px", color: "#4B5563", lineHeight: 1.5 }}
+            >
+              Tem certeza que deseja{" "}
+              <strong>
+                {tratamentoParaAlterar.status === "Ativo"
+                  ? "Inativar"
+                  : "Ativar"}
+              </strong>{" "}
+              o tratamento de{" "}
+              <strong>{tratamentoParaAlterar.medicamento}</strong> para o
+              paciente <strong>{tratamentoParaAlterar.paciente}</strong>?
+            </Typography>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, pt: 1, justifyContent: "flex-end", gap: 1 }}>
+          <Button
+            onClick={handleCloseConfirmTratamento}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#FFFFFF",
+              color: "#374151",
+              border: "1px solid #E5E7EB",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#F9FAFB",
+                borderColor: "#D1D5DB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleConfirmarAlteracaoTratamento}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor:
+                tratamentoParaAlterar?.status === "Ativo"
+                  ? "#EF4444"
+                  : "#10B981",
+              color: "#FFFFFF",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor:
+                  tratamentoParaAlterar?.status === "Ativo"
+                    ? "#DC2626"
+                    : "#059669",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ==================== MODAL 4: CONFIRMAR DOWNLOAD DE RELATÓRIO (ABA 6) ==================== */}
+      <Dialog
+        open={modalDownloadRelatorioOpen}
+        onClose={handleCloseDownloadRelatorio}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Baixar Relatório
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1 }}>
+          {relatorioParaDownload && (
+            <Typography
+              sx={{ fontSize: "14px", color: "#4B5563", lineHeight: 1.5 }}
+            >
+              Deseja realizar o download do arquivo em PDF referente ao{" "}
+              <strong>{relatorioParaDownload.titulo}</strong>?
+            </Typography>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, pt: 1, justifyContent: "flex-end", gap: 1 }}>
+          <Button
+            onClick={handleCloseDownloadRelatorio}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#FFFFFF",
+              color: "#374151",
+              border: "1px solid #E5E7EB",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#F9FAFB",
+                borderColor: "#D1D5DB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleConfirmarDownloadRelatorio}
+            startIcon={<DownloadIcon sx={{ fontSize: "16px !important" }} />}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#1A56DB",
+              color: "#FFFFFF",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#1E40AF",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Baixar PDF
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

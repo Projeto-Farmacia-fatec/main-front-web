@@ -20,7 +20,6 @@ import {
 } from "@mui/material";
 import {
   Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon,
   HomeOutlined as HomeIcon,
   Logout as LogoutIcon,
   Medication as MedicationIcon,
@@ -52,7 +51,7 @@ const AppLayout = () => {
       PACIENTE: "Paciente",
       SECRETARIA: "Secretaria",
       FARMACIA: "Farmácia",
-      UBS: "UBS,",
+      UBS: "UBS",
     };
     return labels[role] || role;
   };
@@ -68,7 +67,7 @@ const AppLayout = () => {
     const role = user?.role;
     const subtitles = {
       PACIENTE: "Área do Paciente",
-      SECREATARIA: "Área da Secretaria",
+      SECRETARIA: "Área da Secretaria",
       FARMACIA: "Área da Farmácia",
       UBS: "Área da UBS",
     };
@@ -196,7 +195,7 @@ const AppLayout = () => {
                       fontWeight: 600,
                     },
                   },
-                  "&.hover": {
+                  "&:hover": {
                     backgroundColor: "#F9FAFB",
                   },
                 }}
@@ -288,8 +287,15 @@ const AppLayout = () => {
                 {getPageSubtitle()}
               </Typography>
             </Box>
+
+            {/* BOTÃO DO PERFIL NA BARRA SUPERIOR */}
             <Paper
               elevation={0}
+              onClick={() => {
+                if (user?.role === "PACIENTE") {
+                  navigate("/paciente/dashboard", { state: { initialTab: 3 } });
+                }
+              }}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -298,9 +304,15 @@ const AppLayout = () => {
                 px: 2,
                 py: 1,
                 gap: 1.5,
+                cursor: user?.role === "PACIENTE" ? "pointer" : "default",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  backgroundColor:
+                    user?.role === "PACIENTE" ? "#E5E7EB" : "#F3F4F6",
+                },
               }}
             >
-              <Box>
+              <Box sx={{ textAlign: "right" }}>
                 <Typography
                   sx={{
                     fontWeight: 600,

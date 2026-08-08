@@ -1,18 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Box,
   Tabs,
   Tab,
   Typography,
   Paper,
-  Grid,
   Card,
   CardContent,
   Chip,
   Badge,
   Button,
   IconButton,
-  Divider,
 } from "@mui/material";
 import {
   MedicationOutlined as MedicationIcon,
@@ -138,7 +137,15 @@ function TabPanel({ children, value, index, ...other }) {
 }
 
 const PacienteDashboard = () => {
+  const location = useLocation();
   const [tabValue, setTabValue] = useState(0);
+
+  // Se navegar com o estado initialTab, atualiza a aba ativa
+  useEffect(() => {
+    if (location.state?.initialTab !== undefined) {
+      setTabValue(location.state.initialTab);
+    }
+  }, [location.state]);
 
   // Estados do Agendamento
   const [selectedDate, setSelectedDate] = useState(null);
@@ -200,7 +207,6 @@ const PacienteDashboard = () => {
 
   return (
     <Box>
-      {/* Sistema de Abas */}
       <Paper
         elevation={0}
         sx={{
@@ -479,7 +485,6 @@ const PacienteDashboard = () => {
               </Typography>
             </Box>
 
-            {/* Banner de Agendamento Confirmado */}
             {agendamentoConfirmado.status && (
               <Paper
                 elevation={0}
@@ -561,7 +566,6 @@ const PacienteDashboard = () => {
               </Paper>
             )}
 
-            {/* Grid de Seleção: Calendário + Horários */}
             <Box
               sx={{
                 display: "grid",
@@ -569,7 +573,6 @@ const PacienteDashboard = () => {
                 gap: 3,
               }}
             >
-              {/* Coluna Esquerda - Calendário */}
               <Paper
                 elevation={0}
                 sx={{
@@ -609,7 +612,6 @@ const PacienteDashboard = () => {
                   Agosto 2026
                 </Typography>
 
-                {/* CSS GRID NATIVO PARA O CALENDÁRIO */}
                 <Box
                   sx={{
                     display: "grid",
@@ -618,7 +620,6 @@ const PacienteDashboard = () => {
                     textAlign: "center",
                   }}
                 >
-                  {/* Cabeçalho dos Dias da Semana */}
                   {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map(
                     (dia) => (
                       <Typography
@@ -633,12 +634,10 @@ const PacienteDashboard = () => {
                     ),
                   )}
 
-                  {/* Espaços vazios do início do mês (Agosto 2026 começa no Sábado = 6 vazios) */}
                   {Array.from({ length: 6 }, (_, i) => (
                     <Box key={`empty-${i}`} />
                   ))}
 
-                  {/* Dias 1 a 31 */}
                   {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
                     <Box
                       key={dia}
@@ -683,7 +682,6 @@ const PacienteDashboard = () => {
                 </Box>
               </Paper>
 
-              {/* Coluna Direita - Horários */}
               <Paper
                 elevation={0}
                 sx={{
@@ -770,7 +768,6 @@ const PacienteDashboard = () => {
               </Paper>
             </Box>
 
-            {/* Botão Confirmar */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
               <Button
                 variant="contained"
@@ -993,7 +990,6 @@ const PacienteDashboard = () => {
               </Typography>
             </Box>
 
-            {/* Grid 2x2 usando CSS Grid nativo para alinhamento perfeito sem falha de colunas */}
             <Box
               sx={{
                 display: "grid",
@@ -1001,7 +997,6 @@ const PacienteDashboard = () => {
                 gap: 3,
               }}
             >
-              {/* Card 1: Dados Pessoais */}
               <Paper
                 variant="outlined"
                 sx={{
@@ -1081,7 +1076,6 @@ const PacienteDashboard = () => {
                 </Box>
               </Paper>
 
-              {/* Card 2: Contato */}
               <Paper
                 variant="outlined"
                 sx={{
@@ -1170,7 +1164,6 @@ const PacienteDashboard = () => {
                 </Box>
               </Paper>
 
-              {/* Card 3: Endereço */}
               <Paper
                 variant="outlined"
                 sx={{
@@ -1284,7 +1277,6 @@ const PacienteDashboard = () => {
                 </Box>
               </Paper>
 
-              {/* Card 4: Farmácia Judicial */}
               <Paper
                 variant="outlined"
                 sx={{
@@ -1333,7 +1325,6 @@ const PacienteDashboard = () => {
               </Paper>
             </Box>
 
-            {/* Banner Informativo de Rodapé */}
             <Paper
               elevation={0}
               sx={{

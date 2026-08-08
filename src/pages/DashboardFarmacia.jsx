@@ -17,13 +17,12 @@ import {
   TableHead,
   TableRow,
   InputAdornment,
-  Card,
-  CardContent,
-  CardActions,
-  Divider,
-  FormControl,
-  InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Select,
+  FormControl,
 } from "@mui/material";
 import {
   PeopleAltOutlined,
@@ -33,10 +32,9 @@ import {
   Search as SearchIcon,
   VisibilityOutlined,
   SaveOutlined,
-  People,
+  Check as CheckIcon,
 } from "@mui/icons-material";
 import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
-import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import MedicationOutlinedIcon from "@mui/icons-material/MedicationOutlined";
 
@@ -46,6 +44,7 @@ const PACIENTES_MOCK = [
     id: 1,
     nome: "João Silva",
     medicamento: "Losartana 50mg",
+    telefone: "(11) 98765-4321",
     status: "Ativo",
     proximaRetirada: "04/05/2026",
   },
@@ -53,6 +52,7 @@ const PACIENTES_MOCK = [
     id: 2,
     nome: "Maria Santos",
     medicamento: "Metformina 850mg",
+    telefone: "(11) 97654-3210",
     status: "Ativo",
     proximaRetirada: "11/05/2026",
   },
@@ -60,6 +60,7 @@ const PACIENTES_MOCK = [
     id: 3,
     nome: "Pedro Alves",
     medicamento: "Sinvastatina 20mg",
+    telefone: "(11) 96543-2109",
     status: "Inativo",
     proximaRetirada: "-",
   },
@@ -67,26 +68,10 @@ const PACIENTES_MOCK = [
 
 // Dados mockados para Medicamentos
 const MEDICAMENTOS_INICIAIS = [
-  {
-    id: 1,
-    nome: "Losartana 50mg",
-    disponivel: true,
-  },
-  {
-    id: 2,
-    nome: "Metformina 850mg",
-    disponivel: true,
-  },
-  {
-    id: 3,
-    nome: "Sinvastatina 20mg",
-    disponivel: true,
-  },
-  {
-    id: 4,
-    nome: "Enalapril 10mg",
-    disponivel: false,
-  },
+  { id: 1, nome: "Losartana 50mg", disponivel: true },
+  { id: 2, nome: "Metformina 850mg", disponivel: true },
+  { id: 3, nome: "Sinvastatina 20mg", disponivel: true },
+  { id: 4, nome: "Enalapril 10mg", disponivel: false },
 ];
 
 // Dias da semana
@@ -150,10 +135,18 @@ const FarmaciaDashboard = () => {
 
   // Estados da Aba 1: Pacientes
   const [searchPaciente, setSearchPaciente] = useState("");
+  const [modalPacDetalhesOpen, setModalPacDetalhesOpen] = useState(false);
+  const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
 
   // Estados da Aba 2: Medicamentos
   const [searchMedicamento, setSearchMedicamento] = useState("");
   const [medicamentos, setMedicamentos] = useState(MEDICAMENTOS_INICIAIS);
+  const [modalMedDetalhesOpen, setModalMedDetalhesOpen] = useState(false);
+  const [medicamentoDetalhes, setMedicamentoDetalhes] = useState(null);
+
+  // Modal de Confirmação de Alteração de Disponibilidade (Card da Aba 2)
+  const [modalConfirmStatusOpen, setModalConfirmStatusOpen] = useState(false);
+  const [medicamentoParaAlterar, setMedicamentoParaAlterar] = useState(null);
 
   // Estados da Aba 3: Disponibilidade
   const [medicamentoSelecionado, setMedicamentoSelecionado] =
@@ -163,20 +156,114 @@ const FarmaciaDashboard = () => {
     "Quarta-feira",
     "Sexta-feira",
   ]);
+  const [modalConfirmDisponibilidadeOpen, setModalConfirmDisponibilidadeOpen] =
+    useState(false);
 
   // Estados da Aba 4: Agendamentos
   const [agendamentos, setAgendamentos] = useState(AGENDAMENTOS_INICIAIS);
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
+  // Modal Registrar Presença
+  const [modalPresencaOpen, setModalPresencaOpen] = useState(false);
+  const [agendamentoPresenca, setAgendamentoPresenca] = useState(null);
+  const [responsavelAcompanhante, setResponsavelAcompanhante] = useState("");
+  const [quantidadeEntregue, setQuantidadeEntregue] = useState(30);
+  const [dataRetirada, setDataRetirada] = useState("2026-05-05");
+
+  // Modal Registrar Falta
+  const [modalFaltaOpen, setModalFaltaOpen] = useState(false);
+  const [agendamentoFalta, setAgendamentoFalta] = useState(null);
+
+  const handleTabChange = (event, newValue) => setTabValue(newValue);
+
+  // Handlers Modal Detalhes Paciente
+  const handleOpenModalPacDetalhes = (paciente) => {
+    setPacienteSelecionado(paciente);
+    setModalPacDetalhesOpen(true);
+  };
+  const handleCloseModalPacDetalhes = () => {
+    setModalPacDetalhesOpen(false);
+    setPacienteSelecionado(null);
   };
 
-  const handleToggleDisponibilidade = (id) => {
-    setMedicamentos(
-      medicamentos.map((med) =>
-        med.id === id ? { ...med, disponivel: !med.disponivel } : med,
-      ),
-    );
+  // Handlers Modal Detalhes Medicamento
+  const handleOpenModalMedDetalhes = (med) => {
+    setMedicamentoDetalhes(med);
+    setModalMedDetalhesOpen(true);
+  };
+  const handleCloseModalMedDetalhes = () => {
+    setModalMedDetalhesOpen(false);
+    setMedicamentoDetalhes(null);
+  };
+
+  // Handlers Modal Confirmação de Disponibilidade (Aba 2)
+  const handleOpenConfirmStatus = (med) => {
+    setMedicamentoParaAlterar(med);
+    setModalConfirmStatusOpen(true);
+  };
+  const handleCloseConfirmStatus = () => {
+    setModalConfirmStatusOpen(false);
+    setMedicamentoParaAlterar(null);
+  };
+  const handleConfirmarAlteracaoStatus = () => {
+    if (medicamentoParaAlterar) {
+      setMedicamentos(
+        medicamentos.map((m) =>
+          m.id === medicamentoParaAlterar.id
+            ? { ...m, disponivel: !m.disponivel }
+            : m,
+        ),
+      );
+    }
+    handleCloseConfirmStatus();
+  };
+
+  // Handlers Modal Confirmação de Disponibilidade (Aba 3)
+  const handleOpenConfirmDisponibilidade = () => {
+    setModalConfirmDisponibilidadeOpen(true);
+  };
+  const handleCloseConfirmDisponibilidade = () => {
+    setModalConfirmDisponibilidadeOpen(false);
+  };
+  const handleSalvarDisponibilidadeFinal = () => {
+    handleCloseConfirmDisponibilidade();
+  };
+
+  // Handlers Modal Presença
+  const handleOpenModalPresenca = (ag) => {
+    setAgendamentoPresenca(ag);
+    setResponsavelAcompanhante("");
+    setQuantidadeEntregue(30);
+    setDataRetirada("2026-05-05");
+    setModalPresencaOpen(true);
+  };
+  const handleCloseModalPresenca = () => {
+    setModalPresencaOpen(false);
+    setAgendamentoPresenca(null);
+  };
+  const handleConfirmarPresenca = () => {
+    if (agendamentoPresenca) {
+      setAgendamentos(
+        agendamentos.map((ag) =>
+          ag.id === agendamentoPresenca.id
+            ? { ...ag, status: "Confirmado" }
+            : ag,
+        ),
+      );
+    }
+    handleCloseModalPresenca();
+  };
+
+  // Handlers Modal Falta
+  const handleOpenModalFalta = (ag) => {
+    setAgendamentoFalta(ag);
+    setModalFaltaOpen(true);
+  };
+  const handleCloseModalFalta = () => {
+    setModalFaltaOpen(false);
+    setAgendamentoFalta(null);
+  };
+  const handleConfirmarFalta = () => {
+    handleCloseModalFalta();
   };
 
   const handleToggleDia = (dia) => {
@@ -202,44 +289,6 @@ const FarmaciaDashboard = () => {
   const filteredMedicamentos = medicamentos.filter((m) =>
     m.nome.toLowerCase().includes(searchMedicamento.toLowerCase()),
   );
-
-  const getStatusChip = (status) => {
-    const configs = {
-      Ativo: { bg: "#ECFDF5", color: "#059669", dot: "#10B981" },
-      Inativo: { bg: "#FDF2F8", color: "#BE185D", dot: "#EC4899" },
-      Confirmado: { bg: "#ECFDF5", color: "#059669", dot: "#10B981" },
-      Pendente: { bg: "#FEF3C7", color: "#D97706", dot: "#F59E0B" },
-      Disponível: { bg: "#ECFDF5", color: "#059669", dot: "#10B981" },
-      Indisponível: { bg: "#FDF2F8", color: "#BE185D", dot: "#EC4899" },
-    };
-
-    const config = configs[status] || configs.Ativo;
-
-    return (
-      <Chip
-        label={status}
-        size="small"
-        icon={
-          <Box
-            sx={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              backgroundColor: config.dot,
-              ml: 1,
-            }}
-          />
-        }
-        sx={{
-          backgroundColor: config.bg,
-          color: config.color,
-          fontWeight: 600,
-          fontSize: "12px",
-          borderRadius: 2,
-        }}
-      />
-    );
-  };
 
   return (
     <Box>
@@ -278,22 +327,22 @@ const FarmaciaDashboard = () => {
           }}
         >
           <Tab
-            icon={<PeopleAltOutlined sx={{ fontsize: 20 }} />}
+            icon={<PeopleAltOutlined sx={{ fontSize: 20 }} />}
             label="Pacientes"
             iconPosition="start"
           />
           <Tab
-            icon={<LinkOutlined sx={{ fontsize: 20 }} />}
+            icon={<LinkOutlined sx={{ fontSize: 20 }} />}
             label="Lista de Medicamentos"
             iconPosition="start"
           />
           <Tab
-            icon={<CalendarTodayOutlined sx={{ fontsize: 20 }} />}
+            icon={<CalendarTodayOutlined sx={{ fontSize: 20 }} />}
             label="Disponibilidade"
             iconPosition="start"
           />
           <Tab
-            icon={<InboxOutlined sx={{ fontsize: 20 }} />}
+            icon={<InboxOutlined sx={{ fontSize: 20 }} />}
             label="Agendamentos"
             iconPosition="start"
           />
@@ -317,7 +366,6 @@ const FarmaciaDashboard = () => {
               </Typography>
             </Box>
 
-            {/* Paper Card Único envolvendo Busca + Tabela */}
             <Paper
               elevation={0}
               sx={{
@@ -327,7 +375,6 @@ const FarmaciaDashboard = () => {
                 backgroundColor: "#FFFFFF",
               }}
             >
-              {/* Campo de Busca de Largura Total */}
               <TextField
                 fullWidth
                 size="small"
@@ -358,7 +405,6 @@ const FarmaciaDashboard = () => {
                 }}
               />
 
-              {/* Tabela de Pacientes Integrada */}
               <TableContainer
                 component={Paper}
                 elevation={0}
@@ -426,7 +472,6 @@ const FarmaciaDashboard = () => {
                         hover
                         sx={{ borderBottom: "1px solid #F3F4F6" }}
                       >
-                        {/* Nome com Ícone de Usuário */}
                         <TableCell sx={{ py: 1.5 }}>
                           <Box
                             sx={{
@@ -500,6 +545,7 @@ const FarmaciaDashboard = () => {
                         <TableCell sx={{ py: 1.5 }}>
                           <Button
                             size="small"
+                            onClick={() => handleOpenModalPacDetalhes(paciente)}
                             startIcon={
                               <VisibilityOutlined
                                 sx={{ fontSize: "15px !important" }}
@@ -551,7 +597,6 @@ const FarmaciaDashboard = () => {
               </Typography>
             </Box>
 
-            {/* Paper Envolvedor Único */}
             <Paper
               elevation={0}
               sx={{
@@ -561,7 +606,6 @@ const FarmaciaDashboard = () => {
                 backgroundColor: "#FFFFFF",
               }}
             >
-              {/* Campo de Busca de Largura Total */}
               <TextField
                 fullWidth
                 size="small"
@@ -578,10 +622,7 @@ const FarmaciaDashboard = () => {
                     "&:hover fieldset": { borderColor: "#D1D5DB" },
                     "&.Mui-focused fieldset": { borderColor: "#1A56DB" },
                   },
-                  "& .MuiOutlinedInput-input": {
-                    py: 1,
-                    fontSize: "14px",
-                  },
+                  "& .MuiOutlinedInput-input": { py: 1, fontSize: "14px" },
                 }}
                 InputProps={{
                   startAdornment: (
@@ -592,7 +633,6 @@ const FarmaciaDashboard = () => {
                 }}
               />
 
-              {/* Grid de Cards (3 Colunas em Desktops) */}
               <Box
                 sx={{
                   display: "grid",
@@ -620,7 +660,6 @@ const FarmaciaDashboard = () => {
                       "&:hover": { borderColor: "#D1D5DB" },
                     }}
                   >
-                    {/* Topo do Card: Ícone + Nome + Chip */}
                     <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                       <Box
                         sx={{
@@ -673,11 +712,11 @@ const FarmaciaDashboard = () => {
                       </Box>
                     </Box>
 
-                    {/* Rodapé do Card: Botões */}
                     <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
                       <Button
                         fullWidth
                         size="small"
+                        onClick={() => handleOpenModalMedDetalhes(med)}
                         startIcon={
                           <VisibilityOutlined
                             sx={{ fontSize: "15px !important" }}
@@ -704,7 +743,7 @@ const FarmaciaDashboard = () => {
                       <Button
                         fullWidth
                         size="small"
-                        onClick={() => handleToggleDisponibilidade(med.id)}
+                        onClick={() => handleOpenConfirmStatus(med)}
                         sx={{
                           textTransform: "none",
                           fontSize: "12px",
@@ -750,7 +789,7 @@ const FarmaciaDashboard = () => {
                 variant="body2"
                 sx={{ color: "#6B7280", fontSize: "14px" }}
               >
-                Defina os dias disponiveis para agendamento de cada medicamento
+                Defina os dias disponíveis para agendamento de cada medicamento
               </Typography>
             </Box>
 
@@ -793,7 +832,7 @@ const FarmaciaDashboard = () => {
                   <Typography
                     sx={{ fontWeight: 600, fontSize: "15px", Color: "#111827" }}
                   >
-                    Dias Disponivais para Agendamento
+                    Dias Disponíveis para Agendamento
                   </Typography>
                 </Box>
 
@@ -866,11 +905,11 @@ const FarmaciaDashboard = () => {
                 </Typography>
               </Paper>
 
-              {/* Botão Salvar */}
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <Button
                   variant="contained"
                   startIcon={<SaveOutlined />}
+                  onClick={handleOpenConfirmDisponibilidade}
                   sx={{
                     textTransform: "none",
                     fontWeight: 600,
@@ -878,7 +917,11 @@ const FarmaciaDashboard = () => {
                     px: 4,
                     py: 1.5,
                     backgroundColor: "#1A56DB",
-                    "&:hover": { backgroundColor: "#1E40AF" },
+                    boxShadow: "none",
+                    "&:hover": {
+                      backgroundColor: "#1E40AF",
+                      boxShadow: "none",
+                    },
                   }}
                 >
                   Salvar Disponibilidade
@@ -906,7 +949,6 @@ const FarmaciaDashboard = () => {
               </Typography>
             </Box>
 
-            {/* Paper Container Envolvedor */}
             <Paper
               elevation={0}
               sx={{
@@ -939,7 +981,6 @@ const FarmaciaDashboard = () => {
                         gap: 2,
                       }}
                     >
-                      {/* Grid das Colunas com espaçamento uniforme e alinhamento na base */}
                       <Box
                         sx={{
                           display: "grid",
@@ -947,14 +988,12 @@ const FarmaciaDashboard = () => {
                             xs: "1fr",
                             md: "280px 1fr 1fr",
                           },
-                          alignItems: "flex-end", // Garante o alinhamento na linha do remédio
+                          alignItems: "flex-end",
                           gap: 3,
                           flex: 1,
                         }}
                       >
-                        {/* Coluna 1: Paciente e Medicamento */}
                         <Box sx={{ display: "flex", flexDirection: "column" }}>
-                          {/* Nome do Paciente + Status */}
                           <Box
                             sx={{
                               display: "flex",
@@ -997,7 +1036,6 @@ const FarmaciaDashboard = () => {
                             />
                           </Box>
 
-                          {/* Medicamento */}
                           <Box>
                             <Typography
                               sx={{
@@ -1031,7 +1069,6 @@ const FarmaciaDashboard = () => {
                           </Box>
                         </Box>
 
-                        {/* Coluna 2: Data e Horário (Alinhado com a linha do Medicamento) */}
                         <Box>
                           <Typography
                             sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.3 }}
@@ -1060,7 +1097,6 @@ const FarmaciaDashboard = () => {
                           </Box>
                         </Box>
 
-                        {/* Coluna 3: Quantidade (Alinhado com a linha do Medicamento) */}
                         <Box>
                           <Typography
                             sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.3 }}
@@ -1072,7 +1108,7 @@ const FarmaciaDashboard = () => {
                               fontWeight: 600,
                               fontSize: "14px",
                               color: "#111827",
-                              py: "2px", // Compensa o tamanho dos ícones ao lado para manter a linha perfeita
+                              py: "2px",
                             }}
                           >
                             {agendamento.quantidade}
@@ -1080,7 +1116,7 @@ const FarmaciaDashboard = () => {
                         </Box>
                       </Box>
 
-                      {/* Coluna de Ações na Extrema Direita */}
+                      {/* Botões de Ação na Aba Agendamentos */}
                       <Box
                         sx={{
                           display: "flex",
@@ -1125,6 +1161,7 @@ const FarmaciaDashboard = () => {
 
                         <Button
                           size="small"
+                          onClick={() => handleOpenModalPresenca(agendamento)}
                           sx={{
                             textTransform: "none",
                             fontSize: "12px",
@@ -1148,6 +1185,7 @@ const FarmaciaDashboard = () => {
 
                         <Button
                           size="small"
+                          onClick={() => handleOpenModalFalta(agendamento)}
                           startIcon={
                             <Typography
                               component="span"
@@ -1185,6 +1223,790 @@ const FarmaciaDashboard = () => {
           </Box>
         </TabPanel>
       </Paper>
+
+      {/* ==================== MODAL 1: DETALHES DO PACIENTE ==================== */}
+      <Dialog
+        open={modalPacDetalhesOpen}
+        onClose={handleCloseModalPacDetalhes}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Detalhes do Paciente
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1 }}>
+          {pacienteSelecionado && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Box>
+                <Typography
+                  sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.2 }}
+                >
+                  Nome
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 600, fontSize: "14px", color: "#111827" }}
+                >
+                  {pacienteSelecionado.nome}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Typography
+                  sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.2 }}
+                >
+                  Medicamento
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 700, fontSize: "14px", color: "#111827" }}
+                >
+                  {pacienteSelecionado.medicamento}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Typography
+                  sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.2 }}
+                >
+                  Telefone
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 600, fontSize: "14px", color: "#111827" }}
+                >
+                  {pacienteSelecionado.telefone}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Typography
+                  sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.2 }}
+                >
+                  Status
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 600, fontSize: "14px", color: "#111827" }}
+                >
+                  {pacienteSelecionado.status}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Typography
+                  sx={{ fontSize: "12px", color: "#9CA3AF", mb: 0.2 }}
+                >
+                  Próxima Retirada
+                </Typography>
+                <Typography
+                  sx={{ fontWeight: 700, fontSize: "14px", color: "#111827" }}
+                >
+                  {pacienteSelecionado.proximaRetirada}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, pt: 1, justifyContent: "flex-end" }}>
+          <Button
+            onClick={handleCloseModalPacDetalhes}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#F3F4F6",
+              color: "#374151",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#E5E7EB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Fechar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ==================== MODAL 2: DETALHES DO MEDICAMENTO ==================== */}
+      <Dialog
+        open={modalMedDetalhesOpen}
+        onClose={handleCloseModalMedDetalhes}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Detalhes do Medicamento
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1.5 }}>
+          {medicamentoDetalhes && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#374151",
+                    mb: 0.5,
+                  }}
+                >
+                  Medicamento
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={medicamentoDetalhes.nome}
+                  disabled
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                      backgroundColor: "#F9FAFB",
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#374151",
+                    mb: 0.5,
+                  }}
+                >
+                  Status
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={
+                    medicamentoDetalhes.disponivel
+                      ? "Disponível"
+                      : "Indisponível"
+                  }
+                  disabled
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                      backgroundColor: "#F9FAFB",
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, pt: 1, justifyContent: "flex-end", gap: 1 }}>
+          <Button
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#1F2937",
+              color: "#FFFFFF",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#111827",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Preview
+          </Button>
+
+          <Button
+            onClick={handleCloseModalMedDetalhes}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#FFFFFF",
+              color: "#374151",
+              border: "1px solid #E5E7EB",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#F9FAFB",
+                borderColor: "#D1D5DB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Fechar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ==================== MODAL 3: CONFIRMAÇÃO DE STATUS (MARCAR INDISPONÍVEL) ==================== */}
+      <Dialog
+        open={modalConfirmStatusOpen}
+        onClose={handleCloseConfirmStatus}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Confirmar Alteração
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1 }}>
+          {medicamentoParaAlterar && (
+            <Typography
+              sx={{ fontSize: "14px", color: "#4B5563", lineHeight: 1.5 }}
+            >
+              Tem certeza que deseja marcar{" "}
+              <strong>{medicamentoParaAlterar.nome}</strong> como{" "}
+              <strong>
+                {medicamentoParaAlterar.disponivel
+                  ? "Indisponível"
+                  : "Disponível"}
+              </strong>
+              ?
+            </Typography>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, pt: 1, justifyContent: "flex-end", gap: 1 }}>
+          <Button
+            onClick={handleCloseConfirmStatus}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#FFFFFF",
+              color: "#374151",
+              border: "1px solid #E5E7EB",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#F9FAFB",
+                borderColor: "#D1D5DB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleConfirmarAlteracaoStatus}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: medicamentoParaAlterar?.disponivel
+                ? "#EF4444"
+                : "#10B981",
+              color: "#FFFFFF",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: medicamentoParaAlterar?.disponivel
+                  ? "#DC2626"
+                  : "#059669",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ==================== MODAL 4: CONFIRMAÇÃO DE SALVAR DISPONIBILIDADE (ABA 3) ==================== */}
+      <Dialog
+        open={modalConfirmDisponibilidadeOpen}
+        onClose={handleCloseConfirmDisponibilidade}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Salvar Disponibilidade
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1 }}>
+          <Typography
+            sx={{
+              fontSize: "14px",
+              color: "#4B5563",
+              lineHeight: 1.5,
+              mb: 1.5,
+            }}
+          >
+            Deseja salvar os dias de agendamento para{" "}
+            <strong>{medicamentoSelecionado}</strong>?
+          </Typography>
+
+          <Typography
+            sx={{
+              fontSize: "13px",
+              color: "#6B7280",
+              fontWeight: 500,
+              mb: 0.5,
+            }}
+          >
+            Dias selecionados:
+          </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8 }}>
+            {diasSelecionados.length > 0 ? (
+              diasSelecionados.map((dia) => (
+                <Chip
+                  key={dia}
+                  label={dia}
+                  size="small"
+                  sx={{
+                    backgroundColor: "#EFF6FF",
+                    color: "#1A56DB",
+                    fontWeight: 600,
+                    fontSize: "12px",
+                    borderRadius: "6px",
+                  }}
+                />
+              ))
+            ) : (
+              <Typography
+                sx={{ fontSize: "13px", color: "#EF4444", italic: true }}
+              >
+                Nenhum dia selecionado
+              </Typography>
+            )}
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, pt: 1, justifyContent: "flex-end", gap: 1 }}>
+          <Button
+            onClick={handleCloseConfirmDisponibilidade}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#FFFFFF",
+              color: "#374151",
+              border: "1px solid #E5E7EB",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#F9FAFB",
+                borderColor: "#D1D5DB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleSalvarDisponibilidadeFinal}
+            startIcon={<CheckIcon sx={{ fontSize: "16px !important" }} />}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#1A56DB",
+              color: "#FFFFFF",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#1E40AF",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Confirmar e Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ==================== MODAL 5: REGISTRAR PRESENÇA (ABA 4) ==================== */}
+      <Dialog
+        open={modalPresencaOpen}
+        onClose={handleCloseModalPresenca}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Registrar Presença
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1.5 }}>
+          {agendamentoPresenca && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {/* Paciente Read-only */}
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#374151",
+                    mb: 0.5,
+                  }}
+                >
+                  Paciente
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={agendamentoPresenca.nome}
+                  disabled
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                      backgroundColor: "#F9FAFB",
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* Responsável Acompanhante */}
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#374151",
+                    mb: 0.5,
+                  }}
+                >
+                  Responsável Acompanhante (se houver)
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Nome do responsável"
+                  value={responsavelAcompanhante}
+                  onChange={(e) => setResponsavelAcompanhante(e.target.value)}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                      backgroundColor: "#FFFFFF",
+                      "& fieldset": { borderColor: "#E5E7EB" },
+                      "&:hover fieldset": { borderColor: "#D1D5DB" },
+                      "&.Mui-focused fieldset": { borderColor: "#1A56DB" },
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* Quantidade Entregue */}
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#374151",
+                    mb: 0.5,
+                  }}
+                >
+                  Quantidade Entregue
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  value={quantidadeEntregue}
+                  onChange={(e) => setQuantidadeEntregue(e.target.value)}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                      backgroundColor: "#FFFFFF",
+                      "& fieldset": { borderColor: "#E5E7EB" },
+                      "&:hover fieldset": { borderColor: "#D1D5DB" },
+                      "&.Mui-focused fieldset": { borderColor: "#1A56DB" },
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* Data da Retirada */}
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#374151",
+                    mb: 0.5,
+                  }}
+                >
+                  Data da Retirada
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="date"
+                  value={dataRetirada}
+                  onChange={(e) => setDataRetirada(e.target.value)}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                      backgroundColor: "#FFFFFF",
+                      "& fieldset": { borderColor: "#E5E7EB" },
+                      "&:hover fieldset": { borderColor: "#D1D5DB" },
+                      "&.Mui-focused fieldset": { borderColor: "#1A56DB" },
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+
+        <DialogActions
+          sx={{ p: 2.5, pt: 1, justifyContent: "flex-end", gap: 1 }}
+        >
+          <Button
+            onClick={handleCloseModalPresenca}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#FFFFFF",
+              color: "#374151",
+              border: "1px solid #E5E7EB",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#F9FAFB",
+                borderColor: "#D1D5DB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleConfirmarPresenca}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 3,
+              py: 0.6,
+              backgroundColor: "#1A56DB",
+              color: "#FFFFFF",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#1E40AF",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ==================== MODAL 6: REGISTRAR FALTA (ABA 4) ==================== */}
+      <Dialog
+        open={modalFaltaOpen}
+        onClose={handleCloseModalFalta}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            boxShadow:
+              "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2, px: 2.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontSize: "18px", color: "#111827" }}
+          >
+            Registrar Falta
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, py: 1.5 }}>
+          {agendamentoFalta && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {/* Paciente Read-only */}
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#374151",
+                    mb: 0.5,
+                  }}
+                >
+                  Paciente
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={agendamentoFalta.nome}
+                  disabled
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                      backgroundColor: "#F9FAFB",
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* Banner de Aviso Amarelo */}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  backgroundColor: "#FFFBEB",
+                  border: "1px solid #FDE68A",
+                  borderRadius: "8px",
+                }}
+              >
+                <Typography
+                  sx={{ fontSize: "13px", color: "#D97706", lineHeight: 1.5 }}
+                >
+                  O paciente receberá uma notificação para justificar a ausência
+                  e realizar um novo agendamento.
+                </Typography>
+              </Paper>
+            </Box>
+          )}
+        </DialogContent>
+
+        <DialogActions
+          sx={{ p: 2.5, pt: 1, justifyContent: "flex-end", gap: 1 }}
+        >
+          <Button
+            onClick={handleCloseModalFalta}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 2.5,
+              py: 0.6,
+              backgroundColor: "#FFFFFF",
+              color: "#374151",
+              border: "1px solid #E5E7EB",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#F9FAFB",
+                borderColor: "#D1D5DB",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleConfirmarFalta}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "13px",
+              borderRadius: "10px",
+              px: 3,
+              py: 0.6,
+              backgroundColor: "#DC2626",
+              color: "#FFFFFF",
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#B91C1C",
+                boxShadow: "none",
+              },
+            }}
+          >
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
