@@ -113,9 +113,11 @@ const LoginPage = () => {
         display: "flex",
         width: "100vw",
         height: "100vh",
+        maxHeight: "100vh",
         margin: 0,
         padding: 0,
         overflow: "hidden",
+        backgroundColor: "#FFFFFF",
       }}
     >
       {/* Lado Esquerdo - Banner Azul com Imagem de Fundo */}
@@ -132,7 +134,7 @@ const LoginPage = () => {
           overflow: "hidden",
         }}
       >
-        {/* Imagem de fundo ocupando toda a área azul */}
+        {/* Imagem de fundo */}
         <Box
           sx={{
             position: "absolute",
@@ -151,7 +153,7 @@ const LoginPage = () => {
           }}
         />
 
-        {/* Overlay com gradiente para melhorar legibilidade */}
+        {/* Overlay com gradiente */}
         <Box
           sx={{
             position: "absolute",
@@ -165,7 +167,7 @@ const LoginPage = () => {
           }}
         />
 
-        {/* Conteúdo centralizado */}
+        {/* Conteúdo centralizado otimizado para HD (768px de altura) */}
         <Box
           sx={{
             position: "relative",
@@ -178,32 +180,34 @@ const LoginPage = () => {
             px: 4,
           }}
         >
-          {/* Círculo com ícone */}
+          {/* Círculo com ícone ajustado */}
           <Box
             sx={{
-              width: 120,
-              height: 120,
+              width: { md: 80, lg: 100 },
+              height: { md: 80, lg: 100 },
               borderRadius: "50%",
               backgroundColor: "white",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              mb: 4,
+              mb: 2.5,
               boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
             }}
           >
-            <MedicationIcon sx={{ fontSize: 64, color: "#1A56DB" }} />
+            <MedicationIcon
+              sx={{ fontSize: { md: 44, lg: 54 }, color: "#1A56DB" }}
+            />
           </Box>
 
-          {/* Textos */}
+          {/* Textos com tamanhos responsivos */}
           <Box sx={{ textAlign: "center", width: "100%" }}>
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
                 color: "white",
-                mb: 1,
-                fontSize: { xs: "1.5rem", md: "2rem" },
+                mb: 0.5,
+                fontSize: { md: "1.6rem", lg: "2rem" },
                 textShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}
             >
@@ -214,7 +218,8 @@ const LoginPage = () => {
               sx={{
                 color: "rgba(255, 255, 255, 0.9)",
                 fontWeight: 400,
-                mb: 2,
+                mb: 1.5,
+                fontSize: { md: "1rem", lg: "1.25rem" },
                 textShadow: "0 1px 2px rgba(0,0,0,0.1)",
               }}
             >
@@ -225,6 +230,7 @@ const LoginPage = () => {
               sx={{
                 color: "rgba(255, 255, 255, 0.8)",
                 fontWeight: 300,
+                fontSize: { md: "0.875rem", lg: "1rem" },
                 textShadow: "0 1px 2px rgba(0,0,0,0.1)",
               }}
             >
@@ -234,7 +240,7 @@ const LoginPage = () => {
         </Box>
       </Box>
 
-      {/* Lado Direito - Formulário */}
+      {/* Lado Direito - Formulário Ajustado em Altura */}
       <Box
         sx={{
           width: { xs: "100%", md: "50%" },
@@ -250,10 +256,10 @@ const LoginPage = () => {
         <Box
           sx={{
             width: "100%",
-            maxWidth: 440,
-            px: { xs: 3, sm: 4, md: 8 },
-            py: { xs: 3, sm: 4, md: 0 },
-            my: { xs: "auto", md: 0 },
+            maxWidth: 420,
+            px: { xs: 2.5, sm: 4, md: 5 },
+            py: { xs: 2, md: 2 },
+            my: "auto", // Garante a centralização vertical perfeita
           }}
         >
           {/* Cabeçalho Compacto Mobile */}
@@ -262,35 +268,34 @@ const LoginPage = () => {
               display: { xs: "flex", md: "none" },
               flexDirection: "column",
               alignItems: "center",
-              mb: 4,
-              mt: 2,
+              mb: 2.5,
             }}
           >
             <Box
               sx={{
-                width: 64,
-                height: 64,
+                width: 52,
+                height: 52,
                 borderRadius: "50%",
                 backgroundColor: "#1A56DB",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                mb: 2,
+                mb: 1.5,
                 boxShadow: "0 4px 12px rgba(26, 86, 219, 0.3)",
                 backgroundImage: `url(${Medicamento})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
             >
-              <MedicationIcon sx={{ fontSize: 36, color: "white" }} />
+              <MedicationIcon sx={{ fontSize: 30, color: "white" }} />
             </Box>
             <Typography
-              variant="h5"
+              variant="h6"
               sx={{
                 fontWeight: 700,
                 color: "#1A56DB",
                 textAlign: "center",
-                mb: 0.5,
+                mb: 0.2,
               }}
             >
               Sistema de Farmácia Judicial
@@ -300,63 +305,57 @@ const LoginPage = () => {
               sx={{
                 color: "#6B7280",
                 fontWeight: 500,
+                fontSize: "0.8rem",
               }}
             >
               Franco da Rocha
             </Typography>
           </Box>
 
-          {/* Cabeçalho Desktop */}
+          {/* Cabeçalho Desktop Compacto */}
           <Box
             sx={{
               display: { xs: "none", md: "block" },
-              mb: 4,
+              mb: 2,
               textAlign: "center",
             }}
           >
             <Typography
-              variant="h4"
+              variant="h5"
               sx={{
                 fontWeight: 700,
                 color: "#111827",
-                mb: 1,
+                mb: 0.3,
+                fontSize: "1.5rem",
               }}
             >
               Bem-vindo
             </Typography>
             <Typography
-              variant="body1"
+              variant="body2"
               sx={{
                 color: "#6B7280",
+                fontSize: "0.875rem",
               }}
             >
               Entre com suas credenciais
             </Typography>
           </Box>
 
-          {/* Cabeçalho do Formulário Mobile */}
-          <Typography
-            variant="body2"
-            sx={{
-              display: { xs: "block", md: "none" },
-              color: "#6B7280",
-              textAlign: "center",
-              mb: 3,
-            }}
-          >
-            Entre com suas credenciais
-          </Typography>
-
           {/* Formulário */}
           <Box component="form" onSubmit={handleSubmit}>
             {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
+              <Alert
+                severity="error"
+                sx={{ mb: 1.5, py: 0.2, fontSize: "0.8rem" }}
+              >
                 {error}
               </Alert>
             )}
 
             <TextField
               fullWidth
+              size="small"
               required
               id="cpf"
               label="CPF"
@@ -365,11 +364,17 @@ const LoginPage = () => {
               value={cpf}
               onChange={(e) => setCpf(formatCpf(e.target.value))}
               placeholder="000.000.000-00"
-              sx={{ mb: 2.5 }}
+              sx={{
+                mb: 1.8,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                },
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <PersonIcon sx={{ color: "#9CA3AF" }} />
+                    <PersonIcon sx={{ color: "#9CA3AF", fontSize: 20 }} />
                   </InputAdornment>
                 ),
               }}
@@ -377,6 +382,7 @@ const LoginPage = () => {
 
             <TextField
               fullWidth
+              size="small"
               required
               name="password"
               label="Senha"
@@ -385,11 +391,17 @@ const LoginPage = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              sx={{ mb: 3 }}
+              sx={{
+                mb: 1.8,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                },
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockIcon sx={{ color: "#9CA3AF" }} />
+                    <LockIcon sx={{ color: "#9CA3AF", fontSize: 20 }} />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -399,7 +411,11 @@ const LoginPage = () => {
                       edge="end"
                       size="small"
                     >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                      {showPassword ? (
+                        <VisibilityOff sx={{ fontSize: 18 }} />
+                      ) : (
+                        <Visibility sx={{ fontSize: 18 }} />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -412,19 +428,21 @@ const LoginPage = () => {
               variant="contained"
               disabled={loading}
               sx={{
-                py: 1.5,
+                py: 1.1,
                 backgroundColor: "#1A56DB",
                 "&:hover": {
                   backgroundColor: "#1E40AF",
                 },
                 textTransform: "none",
-                fontSize: "1rem",
+                fontSize: "0.95rem",
                 fontWeight: 600,
-                mb: 3,
+                borderRadius: "8px",
+                mb: 1.2,
+                boxShadow: "none",
               }}
             >
               {loading ? (
-                <CircularProgress size={24} color="inherit" />
+                <CircularProgress size={22} color="inherit" />
               ) : (
                 "Entrar"
               )}
@@ -435,35 +453,36 @@ const LoginPage = () => {
               sx={{
                 color: "#9CA3AF",
                 textAlign: "center",
-                mb: { xs: 3, md: 4 },
-                fontSize: "0.875rem",
+                mb: 1.8,
+                fontSize: "0.75rem",
               }}
             >
               Pacientes são cadastrados pela Secretaria de Saúde
             </Typography>
           </Box>
 
-          <Divider sx={{ mb: 3 }}>
+          <Divider sx={{ mb: 1.8 }}>
             <Typography
-              variant="body2"
+              variant="caption"
               sx={{
                 color: "#6B7280",
                 fontWeight: 600,
-                px: 2,
+                px: 1.5,
+                fontSize: "0.75rem",
               }}
             >
               Opções de Login:
             </Typography>
           </Divider>
 
-          {/* Cards de Acesso Rápido */}
-          <Box sx={{ mb: 2 }}>
+          {/* Cards de Acesso Rápido Compactados */}
+          <Box sx={{ mb: 1 }}>
             {QUICK_ACCESS.map((access) => (
               <Card
                 key={access.role}
                 onClick={() => handleQuickAccess(access)}
                 sx={{
-                  mb: 1.5,
+                  mb: 1,
                   cursor: "pointer",
                   transition: "all 0.2s ease",
                   border:
@@ -486,9 +505,9 @@ const LoginPage = () => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    py: 1.5,
-                    px: { xs: 1.5, sm: 2 },
-                    "&:last-child": { pb: 1.5 },
+                    py: 1,
+                    px: 2,
+                    "&:last-child": { pb: 1 },
                   }}
                 >
                   <Box>
@@ -497,17 +516,17 @@ const LoginPage = () => {
                       sx={{
                         fontWeight: 600,
                         color: "#111827",
-                        mb: 0.5,
-                        fontSize: { xs: "0.875rem", sm: "0.9rem" },
+                        fontSize: "0.8rem",
+                        lineHeight: 1.2,
                       }}
                     >
                       {access.label}
                     </Typography>
                     <Typography
-                      variant="body2"
+                      variant="caption"
                       sx={{
                         color: "#6B7280",
-                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                        fontSize: "0.725rem",
                       }}
                     >
                       CPF: {access.cpf}
@@ -515,14 +534,14 @@ const LoginPage = () => {
                   </Box>
                   <Avatar
                     sx={{
-                      width: { xs: 36, sm: 40 },
-                      height: { xs: 36, sm: 40 },
+                      width: 32,
+                      height: 32,
                       backgroundColor:
                         selectedRole === access.role ? "#1A56DB" : "#F3F4F6",
                       color: selectedRole === access.role ? "white" : "#9CA3AF",
                     }}
                   >
-                    <PersonOutlineIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                    <PersonOutlineIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                 </CardContent>
               </Card>
@@ -535,8 +554,7 @@ const LoginPage = () => {
               color: "#9CA3AF",
               textAlign: "center",
               display: "block",
-              fontSize: "0.75rem",
-              pb: { xs: 2, md: 0 },
+              fontSize: "0.7rem",
             }}
           >
             Clique em uma opção para preencher automaticamente
