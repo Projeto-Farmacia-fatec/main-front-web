@@ -277,20 +277,16 @@ const PacienteDashboard = () => {
             <Box sx={{ mb: 3 }}>
               <Typography
                 variant="h6"
-                sx={{
-                  fontWeight: 900,
-                  color: "#ff00ea",
-                  mb: 1.5,
-                  letterSpacing: "10px",
-                }}
+                sx={{ fontWeight: 700, color: "#111827", mb: 0.5 }}
               >
-                Beatriz
+                Meus Medicamentos
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ color: "#6B7280", fontSize: "14px" }}
               >
-                Sua gostosa
+                Acompanhe seus medicamentos em uso e as próximas datas de
+                retirada
               </Typography>
             </Box>
 
